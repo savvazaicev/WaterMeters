@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/task_item_mark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mark"
+            android:textSize="18sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/task_item_model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/model"
+            android:textSize="16sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/task_item_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/number"
+            android:textSize="16sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/task_item_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/address"
+            android:textSize="16sp" />
+    </TableRow>
+</TableLayout>
