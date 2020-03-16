@@ -1,10 +1,10 @@
 package com.example.watermeters
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.watermeters.MainActivity.Companion.listView
 import com.example.watermeters.SecondFragment.Companion.action

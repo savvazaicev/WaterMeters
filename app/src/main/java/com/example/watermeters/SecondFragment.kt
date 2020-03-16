@@ -2,12 +2,12 @@ package com.example.watermeters
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.watermeters.MainActivity.Companion.listAdapter
 import com.example.watermeters.MainActivity.Companion.listView

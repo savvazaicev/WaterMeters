@@ -1,12 +1,12 @@
 package com.example.watermeters
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.example.watermeters.SecondFragment.Companion.action
 import com.example.watermeters.db.DBHelper
