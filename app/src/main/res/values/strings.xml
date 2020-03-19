@@ -12,4 +12,13 @@
     <string name="number">Номер</string>
     <string name="save">Сохранить</string>
     <string name="address">Адрес</string>
+    <string name="app_in_name">WaterMeters</string>
+    <string name="app_name_after">Добро пожаловать!</string>
+    <string name="text_bottom">Войдите в свою учётную запись</string>
+    <string name="btnSignIn">Войти</string>
+    <string name="btnRegister">Зарегистрироваться</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="type_name">Введите имя</string>
+    <string name="phone">Телефон</string>
 </resources>

@@ -13,7 +13,15 @@ import com.example.watermeters.db.DBHelper
 import com.example.watermeters.model.WaterMeter
 import kotlinx.android.synthetic.main.activity_main.*
 
-
+//FIXME Скрыть меню при переходе на SecondFragment
+//TODO Авторизация Firebase
+// - Сделать запоминание данных входа, чтобы каждый раз не вводить данные
+//TODO База данных Firebase
+// - Сделать БД по видео
+// - Изменить логику локальной БД
+// - - Подгружать из локальной БД полседнее состояние, если нет интернета
+// - - Сохранять водосчётчик в локальную БД, если нет интернета/не удается подключиться,
+// - - - Подсвечивать красным цветом незагруженный аодосчётчик
 class MainActivity : AppCompatActivity() {
 
     private var showMenuItems = false

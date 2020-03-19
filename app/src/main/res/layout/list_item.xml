@@ -9,8 +9,8 @@
             android:id="@+id/task_item_mark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:text="@string/mark"
             android:textSize="18sp" />
     </TableRow>
@@ -21,8 +21,8 @@
             android:id="@+id/task_item_model"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:text="@string/model"
             android:textSize="16sp" />
     </TableRow>
@@ -33,8 +33,8 @@
             android:id="@+id/task_item_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:text="@string/number"
             android:textSize="16sp" />
     </TableRow>
@@ -45,8 +45,8 @@
             android:id="@+id/task_item_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:text="@string/address"
             android:textSize="16sp" />
     </TableRow>
