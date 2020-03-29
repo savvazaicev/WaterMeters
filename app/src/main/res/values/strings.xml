@@ -7,9 +7,9 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="refresh">Refresh</string>
-    <string name="mark">Марка</string>
-    <string name="model">Модель</string>
-    <string name="number">Номер</string>
+    <string name="registry_number">Номер в реестре</string>
+    <string name="date">Дата поверки</string>
+    <string name="number">Номер счётчика</string>
     <string name="save">Сохранить</string>
     <string name="address">Адрес</string>
     <string name="app_in_name">WaterMeters</string>
@@ -21,4 +21,12 @@
     <string name="password">Пароль</string>
     <string name="type_name">Введите имя</string>
     <string name="phone">Телефон</string>
+    <string name="full_name">ФИО</string>
+    <string name="end_date">Дата окнчания поверки</string>
+    <string name="name">Наименование СИ</string>
+    <string name="type">Тип СИ</string>
+    <string name="producer">Изготовитель</string>
+    <string name="methodology">Методика</string>
+    <string name="cold">Хол.</string>
+    <string name="hot">Гор.</string>
 </resources>

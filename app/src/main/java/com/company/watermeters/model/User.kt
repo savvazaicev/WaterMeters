@@ -1,4 +1,4 @@
-package com.example.watermeters.model
+package com.company.watermeters.model
 
 class User(
     var name: String?,

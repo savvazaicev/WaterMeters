@@ -6,48 +6,102 @@
     <TableRow>
 
         <TextView
-            android:id="@+id/task_item_mark"
+            android:id="@+id/registry_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
             android:layout_marginStart="7dp"
-            android:text="@string/mark"
+            android:layout_marginLeft="7dp"
+            android:text="@string/registry_number"
             android:textSize="18sp" />
     </TableRow>
 
     <TableRow>
 
         <TextView
-            android:id="@+id/task_item_model"
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
             android:layout_marginStart="7dp"
-            android:text="@string/model"
+            android:layout_marginLeft="7dp"
+            android:text="@string/name"
             android:textSize="16sp" />
     </TableRow>
 
     <TableRow>
 
         <TextView
-            android:id="@+id/task_item_number"
+            android:id="@+id/type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
             android:layout_marginStart="7dp"
-            android:text="@string/number"
+            android:layout_marginLeft="7dp"
+            android:text="@string/type"
             android:textSize="16sp" />
     </TableRow>
 
     <TableRow>
 
         <TextView
-            android:id="@+id/task_item_address"
+            android:id="@+id/producer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
             android:layout_marginStart="7dp"
-            android:text="@string/address"
+            android:layout_marginLeft="7dp"
+            android:text="@string/producer"
+            android:textSize="16sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginLeft="7dp"
+            android:text="@string/date"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/end_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginLeft="7dp"
+            android:text="@string/end_date"
+            android:textSize="16sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/methodology"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginLeft="7dp"
+            android:text="@string/methodology"
+            android:textSize="16sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/cold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginLeft="7dp"
+            android:text="@string/cold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/hot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginLeft="7dp"
+            android:text="@string/hot"
             android:textSize="16sp" />
     </TableRow>
 </TableLayout>

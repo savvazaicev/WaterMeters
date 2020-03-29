@@ -1,4 +1,4 @@
-package com.example.watermeters
+package com.company.watermeters
 
 import org.junit.Test
 

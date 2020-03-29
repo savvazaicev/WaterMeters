@@ -1,4 +1,4 @@
-package com.example.watermeters
+package com.company.watermeters
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,8 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.watermeters.MainActivity.Companion.listView
-import com.example.watermeters.SecondFragment.Companion.action
+import com.company.watermeters.MainActivity.Companion.listView
+import com.company.watermeters.MainActivity.Companion.toolBar
+import com.company.watermeters.SecondFragment.Companion.action
 import kotlinx.android.synthetic.main.fragment_first.*
 
 class FirstFragment : Fragment() {
@@ -16,13 +17,14 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        listView?.visibility = View.VISIBLE
+        toolBar?.visibility = View.VISIBLE
         return inflater.inflate(R.layout.fragment_first, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         button_first.setOnClickListener {
-            listView?.visibility = View.INVISIBLE
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
             action = "newItem"
         }

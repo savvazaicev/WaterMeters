@@ -1,42 +1,71 @@
 {
   "project_info": {
-    "project_number": "1073275713494",
-    "firebase_url": "https://watermeters-5845f.firebaseio.com",
-    "project_id": "watermeters-5845f",
-    "storage_bucket": "watermeters-5845f.appspot.com"
+    "project_number": "513333184975",
+    "firebase_url": "https://gorvoda.firebaseio.com",
+    "project_id": "gorvoda",
+    "storage_bucket": "gorvoda.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1073275713494:android:ddb6f32da19692f0585677",
+        "mobilesdk_app_id": "1:513333184975:android:a2cd606627a9a3f0d0aaba",
         "android_client_info": {
-          "package_name": "com.example.watermeters"
+          "package_name": "com.company.watermeters"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1073275713494-1sbvn2rtl9ain880ms9iqe188kkvme44.apps.googleusercontent.com",
+          "client_id": "513333184975-9mp6osov16mrauaci89rfrk3kpb51vhc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.watermeters",
+            "package_name": "com.company.watermeters",
             "certificate_hash": "5e0d0a3a8684887843a8356a63584e1812394a14"
           }
         },
         {
-          "client_id": "1073275713494-0djhmdi2iviq96tg8dvh3n1no6kmk6a4.apps.googleusercontent.com",
+          "client_id": "513333184975-4v51ipnjdpdgpmod4l9a9h4oifpuaaoj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAIoCYVLB-vDkJ07Xf7zup67cj6YsRflig"
+          "current_key": "AIzaSyDCcQAttl0NTON6jygXkQEhOXX0-4NaQSc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1073275713494-0djhmdi2iviq96tg8dvh3n1no6kmk6a4.apps.googleusercontent.com",
+              "client_id": "513333184975-4v51ipnjdpdgpmod4l9a9h4oifpuaaoj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513333184975:android:c2b7741b2a2f588fd0aaba",
+        "android_client_info": {
+          "package_name": "com.example.watermeters"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513333184975-4v51ipnjdpdgpmod4l9a9h4oifpuaaoj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCcQAttl0NTON6jygXkQEhOXX0-4NaQSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513333184975-4v51ipnjdpdgpmod4l9a9h4oifpuaaoj.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
