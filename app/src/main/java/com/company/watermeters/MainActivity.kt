@@ -12,9 +12,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.findNavController
 import androidx.room.Room
 import com.company.watermeters.SecondFragment.Companion.action
-import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.db.DBContract.DATABASE_NAME
+import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.WaterMeter
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 //FIXME Автоматический вход с неправильными данными (проверить для auth.currentUser)
@@ -48,6 +49,8 @@ class MainActivity : AppCompatActivity() {
 
     private var showMenuItems = false
     private var database: WaterMeterDatabase? = null
+    private var db: FirebaseDatabase? = null
+    private var myRef: DatabaseReference? = null
 
     companion object {
         var selectedItem = -1
@@ -63,6 +66,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         database = Room.databaseBuilder(applicationContext, WaterMeterDatabase::class.java,
                 DATABASE_NAME).build()
+        db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
+        myRef = db?.reference
         listView = findViewById(R.id.list_view)
         toolBar = findViewById(R.id.toolbar)
         populateListView()
@@ -82,9 +87,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun populateListView() {
-        waterMeters =  RetrieveTasksAsyncTask(database).execute().get() as ArrayList<WaterMeter>
+        myRef?.child("WaterMeters")?.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                waterMeters.clear()
+                val t = object : GenericTypeIndicator<WaterMeter>() {}
+                dataSnapshot.children.forEach {
+                    waterMeters.add(it.getValue(t)!!)
+                }
+//                dataSnapshot.children.forEach {
+//                    val coldWater = it.child("coldWater").getValue(t)
+//                    val date = it.child("date").getValue(t)
+//                    val hotWater = it.child("hotWater").getValue(t)
+//                    val methodology = it.child("methodology").getValue(t)
+//                    val name = it.child("name").getValue(t)
+//                    val producer = it.child("producer").getValue(t)
+//                    val registryNumber = it.child("registryNumber").getValue(t)
+//                    val type = it.child("type").getValue(t)
+//                    waterMeters.add(WaterMeter(coldWater, date, hotWater, methodology,
+//                        name, producer, registryNumber, type))
+//                }
+//
+//                waterMeters = dataSnapshot.child("WaterMeters").getValue(t)!!
+            }
+            override fun onCancelled(p0: DatabaseError) {
+                // Failed to read value
+            }
+        })
         listAdapter = WaterMeterListAdapter(this, waterMeters)
         listView?.adapter = listAdapter
+//        waterMeters =  RetrieveTasksAsyncTask(database).execute().get() as ArrayList<WaterMeter>
     }
 
     private fun showUpdateTaskUI(selected: Int) {

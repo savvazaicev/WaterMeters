@@ -4,6 +4,11 @@ import android.provider.BaseColumns
 import androidx.room.*
 import com.company.watermeters.db.DBContract
 import com.company.watermeters.db.DateConverter
+import java.text.DateFormat
+import java.text.DateFormat.getDateInstance
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Entity(tableName = DBContract.WaterMeterItem.TABLE_NAME)
@@ -27,7 +32,7 @@ class WaterMeter() {
 
     @TypeConverters(DateConverter::class)
     @ColumnInfo(name = DBContract.WaterMeterItem.COLUMN_NAME_DATE)
-    var date: Date? = null
+    var date: String? = null
 
     @ColumnInfo(name = DBContract.WaterMeterItem.COLUMN_NAME_END_METHODOLOGY)
     var methodology: String? = null
@@ -38,16 +43,15 @@ class WaterMeter() {
     @ColumnInfo(name = DBContract.WaterMeterItem.COLUMN_NAME_END_HOT_WATER)
     var hotWater: String? = null
 
-    @Ignore
     constructor(
-        registryNumber: String?,
-        name: String?,
-        type: String?,
-        producer: String?,
-        date: Date?,
-        methodology: String?,
         coldWater: String?,
-        hotWater: String?
+        date: String?,
+        hotWater: String?,
+        methodology: String?,
+        name: String?,
+        producer: String?,
+        registryNumber: String?,
+        type: String?
     ) : this() {
         this.registryNumber = registryNumber
         this.name = name
@@ -57,18 +61,5 @@ class WaterMeter() {
         this.methodology = methodology
         this.coldWater = coldWater
         this.hotWater = hotWater
-    }
-
-    constructor(
-        Id: Long, registryNumber: String?,
-        name: String?,
-        type: String?,
-        producer: String?,
-        date: Date?,
-        methodology: String?,
-        coldWater: String?,
-        hotWater: String?
-    ) : this(registryNumber, name, type, producer, date, methodology, coldWater, hotWater) {
-        this.id = Id
     }
 }
