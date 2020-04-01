@@ -62,14 +62,6 @@
             android:text="@string/date"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/end_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginLeft="7dp"
-            android:text="@string/end_date"
-            android:textSize="16sp" />
     </TableRow>
 
     <TableRow>

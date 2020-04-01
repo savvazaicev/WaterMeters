@@ -60,7 +60,7 @@
             android:ems="10"
             android:hint="@string/date"
             android:importantForAutofill="no"
-            android:inputType="date" />
+            android:inputType="textPersonName" />
 
         <EditText
             android:id="@+id/end_date"
@@ -71,7 +71,7 @@
             android:ems="10"
             android:hint="@string/end_date"
             android:importantForAutofill="no"
-            android:inputType="date" />
+            android:inputType="textPersonName" />
     </LinearLayout>
 
     <LinearLayout

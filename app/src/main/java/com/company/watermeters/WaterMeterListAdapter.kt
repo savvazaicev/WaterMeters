@@ -17,7 +17,7 @@ class WaterMeterListAdapter(private val context: Context, private val waterMeter
         var view = convertView
         val viewHolder: ViewHolder?
         if (view == null) {
-            view =  inflater.inflate(R.layout.list_item, parent, false)
+            view = inflater.inflate(R.layout.list_item, parent, false)
             viewHolder = ViewHolder()
             viewHolder.registryNumberTextView = view.findViewById(R.id.registry_number)
             viewHolder.nameTextView = view.findViewById(R.id.name)
@@ -48,10 +48,10 @@ class WaterMeterListAdapter(private val context: Context, private val waterMeter
         nameTextView?.text = waterMeter.name
         typeTextView?.text = waterMeter.type
         producerTextView?.text = waterMeter.producer
-        dateTextView?.text = waterMeter.date.toString()
+        dateTextView?.text = waterMeter.date
         methodologyTextView?.text = waterMeter.methodology
-        coldTextView?.text = waterMeter.coldWater
-        hotTextView?.text = waterMeter.hotWater
+        coldTextView?.text = "Хол. " + waterMeter.coldWater
+        hotTextView?.text = "Гор. " + waterMeter.hotWater
         return view
     }
 

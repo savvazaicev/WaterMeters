@@ -64,10 +64,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        database = Room.databaseBuilder(applicationContext, WaterMeterDatabase::class.java,
-                DATABASE_NAME).build()
+        database = Room.databaseBuilder(
+            applicationContext, WaterMeterDatabase::class.java,
+            DATABASE_NAME
+        ).build()
         db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
-        myRef = db?.reference
+        myRef = db?.getReference("WaterMeters")
         listView = findViewById(R.id.list_view)
         toolBar = findViewById(R.id.toolbar)
         populateListView()
@@ -80,34 +82,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         if (showMenuItems) {
-            menu.findItem(R.id.edit_item).isVisible = true
-            menu.findItem(R.id.delete_item).isVisible = true
+//            menu.findItem(R.id.edit_item).isVisible = true
+//            menu.findItem(R.id.delete_item).isVisible = true
         }
         return true
     }
 
     private fun populateListView() {
-        myRef?.child("WaterMeters")?.addListenerForSingleValueEvent(object : ValueEventListener {
+        myRef?.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                waterMeters.clear()
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
                 dataSnapshot.children.forEach {
-                    waterMeters.add(it.getValue(t)!!)
+                    it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
                 }
-//                dataSnapshot.children.forEach {
-//                    val coldWater = it.child("coldWater").getValue(t)
-//                    val date = it.child("date").getValue(t)
-//                    val hotWater = it.child("hotWater").getValue(t)
-//                    val methodology = it.child("methodology").getValue(t)
-//                    val name = it.child("name").getValue(t)
-//                    val producer = it.child("producer").getValue(t)
-//                    val registryNumber = it.child("registryNumber").getValue(t)
-//                    val type = it.child("type").getValue(t)
-//                    waterMeters.add(WaterMeter(coldWater, date, hotWater, methodology,
-//                        name, producer, registryNumber, type))
-//                }
-//
-//                waterMeters = dataSnapshot.child("WaterMeters").getValue(t)!!
+                listAdapter?.notifyDataSetChanged()
             }
             override fun onCancelled(p0: DatabaseError) {
                 // Failed to read value
@@ -157,22 +145,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class AddTaskAsyncTask(private val database: WaterMeterDatabase?, private val newWaterMeter:
-    WaterMeter) : AsyncTask<Void, Void, Long>() {
+    class AddTaskAsyncTask(
+        private val database: WaterMeterDatabase?, private val newWaterMeter:
+        WaterMeter
+    ) : AsyncTask<Void, Void, Long>() {
         override fun doInBackground(vararg params: Void): Long? {
             return database?.dao()?.addWaterMeter(newWaterMeter)
         }
     }
 
-    class UpdateTaskAsyncTask(private val database: WaterMeterDatabase?, private val
-    selected: WaterMeter) : AsyncTask<Void, Void, Unit>() {
+    class UpdateTaskAsyncTask(
+        private val database: WaterMeterDatabase?, private val
+        selected: WaterMeter
+    ) : AsyncTask<Void, Void, Unit>() {
         override fun doInBackground(vararg params: Void): Unit? {
             return database?.dao()?.updateWaterMeter(selected)
         }
     }
 
-    private class DeleteTaskAsyncTask(private val database: WaterMeterDatabase?, private val
-    selected: WaterMeter) : AsyncTask<Void, Void, Unit>() {
+    private class DeleteTaskAsyncTask(
+        private val database: WaterMeterDatabase?, private val
+        selected: WaterMeter
+    ) : AsyncTask<Void, Void, Unit>() {
         override fun doInBackground(vararg params: Void): Unit? {
             return database?.dao()?.deleteWaterMeter(selected)
         }
