@@ -5,12 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Filter
 import android.widget.TextView
 import com.company.watermeters.model.WaterMeter
 
-class WaterMeterListAdapter(private val context: Context, private val waterMeterList: ArrayList<WaterMeter>): BaseAdapter() {
+class WaterMeterListAdapter(
+    private val context: Context,
+    private val waterMeterList: ArrayList<WaterMeter>
+) : BaseAdapter() {
 
-    private var inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private var inflater =
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
 
@@ -76,5 +81,44 @@ class WaterMeterListAdapter(private val context: Context, private val waterMeter
         var methodologyTextView: TextView? = null
         var coldTextView: TextView? = null
         var hotTextView: TextView? = null
+    }
+
+    fun getFilter(): Filter? {
+        return exampleFilter
+    }
+
+    private val exampleFilter: Filter = object : Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults? {
+            val filteredList: MutableList<WaterMeter> = ArrayList()
+            if (constraint == null || constraint.isEmpty()) {
+                filteredList.addAll(waterMeterList)
+            } else {
+                val filterPattern =
+                    constraint.toString().toLowerCase().trim()
+                //FIXME ConcurrentModificationException
+                for (item in waterMeterList) {
+                    if (item.registryNumber?.toLowerCase()?.contains(filterPattern) == true ||
+                        item.name?.toLowerCase()?.contains(filterPattern) == true ||
+                        item.producer?.toLowerCase()?.contains(filterPattern) == true
+                    ) {
+                        filteredList.add(item)
+                    }
+                }
+            }
+            val results = FilterResults()
+            results.values = filteredList
+            return results
+        }
+
+        override fun publishResults(
+            constraint: CharSequence?,
+            results: FilterResults
+        ) {
+            waterMeterList.clear()
+            if (results.values != null) {
+                waterMeterList.addAll(results.values as ArrayList<WaterMeter>)
+            }
+            notifyDataSetChanged()
+        }
     }
 }

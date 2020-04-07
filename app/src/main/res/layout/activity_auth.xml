@@ -3,7 +3,7 @@
     android:windowFullscreen="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
+    android:background="@color/blue"
     android:id="@+id/root_element"
     tools:context=".AuthActivity">
 
@@ -20,11 +20,16 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/suez_one"
             android:gravity="center_horizontal"
-            android:text="@string/app_in_name"
+            android:text="@string/app_name"
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/blue_dark"
-            android:textSize="35sp" />
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:shadowColor="@color/dark"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -63,7 +68,7 @@
         android:layout_margin="15dp"
         android:layout_marginTop="25dp"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:weightSum="1">
 
         <Button
             android:id="@+id/btnSignIn"
@@ -78,18 +83,18 @@
             android:text="@string/btnSignIn"
             android:textColor="@android:color/white" />
 
-        <Button
-            android:id="@+id/btnRegister"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginLeft="6dp"
-            android:layout_weight="1"
-            android:background="@drawable/btn_register"
-            android:fontFamily="@font/montserrat"
-            android:text="@string/btnRegister"
-            android:textColor="@android:color/white" />
+<!--        <Button-->
+<!--            android:id="@+id/btnRegister"-->
+<!--            style="?android:attr/buttonBarButtonStyle"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="6dp"-->
+<!--            android:layout_marginLeft="6dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="@drawable/btn_register"-->
+<!--            android:fontFamily="@font/montserrat"-->
+<!--            android:text="@string/btnRegister"-->
+<!--            android:textColor="@android:color/white" />-->
     </LinearLayout>
 
 </RelativeLayout>

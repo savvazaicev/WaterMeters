@@ -9,6 +9,8 @@
     <color name="btn_sign_in_stroke">#d66060</color>
     <color name="btn_register">#e27a5d</color>
     <color name="btn_register_stroke">#d16e53</color>
-    <color name="blue_dark">#477EAF</color>
-    <color name="blue_light">#638BAF</color>
+    <color name="dark">#1b262c</color>
+    <color name="blue_dark">#0f4c75</color>
+    <color name="blue">#3282b8</color>
+    <color name="blue_light">#bbe1fa</color>
 </resources>

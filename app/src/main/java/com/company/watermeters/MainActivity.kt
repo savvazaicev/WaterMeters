@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ListView
+import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.findNavController
@@ -18,33 +20,33 @@ import com.company.watermeters.model.WaterMeter
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 
-//FIXME Автоматический вход с неправильными данными (проверить для auth.currentUser)
+//TODO Дизайн
+//TODO Поиск водосчётчиков
+//TODO Удалить кнопку регистрации
+//TODO Подгружать из локальной БД полседнее состояние, если нет интернета или изменений в бд
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
-//FIXME В базе данных перепутан email и имя
-//FIXME неправильное отображение SecondFragment в альбомной ориентации
+
+//FIXME неправильное отображение SecondFragment в альбомной ориентации (и в обычной криво)
 // - Сделать отдельный UI для альбомной ориентации
 // - Добавить ScrollView
 // - Заменить ConstraintLayout на RelativeLayout
+//FIXME Неправильно еотображение горячей воды
 //TODO Шифрование данных авторизации
-//TODO Изменить поля в БД
-// - Изменить поля в fragment_second
-// - Изменить поля в list_item
-// - Мигрировать на Room для упрощения жизни
-// - - БД для Счётчиков
-// - - Firebase БД для Клиентов
-
-//TODO База данных Firebase
-// - Сделать БД по видео
-// - - Подгружать из локальной БД полседнее состояние, если нет интернета
-
+//TODO Оповещение об обновлении приложения/автоматическео обновление приложения
 //TODO Добавить роль Гость
+//TODO Material Design
+//TODO Кнопка выхода
+//TODO Поменять цвет ActionButton с зелёного на белый
 //OPTIMIZE FirstFragment становиться невидимым
 // - лучше его заменять вторым через FragmentManager
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
 //OPTIMIZE Передача данных между Activity и Fragments
 //OPTIMIZE Хранить данные входа в Shared Preferences
+//OPTIMIZE Перенести запрос к бд из главного (UI) потока в побочный
+//OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
+//OPTIMIZE Попросить кого-нибудь сделать CodeReview
 class MainActivity : AppCompatActivity() {
 
     private var showMenuItems = false
@@ -81,10 +83,29 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
-        if (showMenuItems) {
+        val searchItem = menu.findItem(R.id.search_item)
+        val searchView = searchItem.actionView as SearchView
+        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                listAdapter?.getFilter()?.filter(newText)
+                return false
+            }
+        })
+        searchView.setOnCloseListener {
+            searchView.onActionViewCollapsed()
+            populateListView()
+            selectedItem = -1
+            false
+        }
+        searchView.isIconifiedByDefault = true
+//        if (showMenuItems) {
 //            menu.findItem(R.id.edit_item).isVisible = true
 //            menu.findItem(R.id.delete_item).isVisible = true
-        }
+//        }
         return true
     }
 

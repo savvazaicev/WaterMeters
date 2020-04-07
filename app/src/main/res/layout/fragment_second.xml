@@ -9,7 +9,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_margin="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginRight="25dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -24,9 +28,9 @@
 
         <EditText
             android:id="@+id/address"
-            android:layout_marginTop="25dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
             android:ems="10"
             android:hint="@string/address"
             android:importantForAutofill="no"
@@ -44,9 +48,9 @@
 
         <EditText
             android:id="@+id/number"
-            android:layout_marginTop="25dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
             android:ems="10"
             android:hint="@string/number"
             android:importantForAutofill="no"
@@ -54,9 +58,9 @@
 
         <EditText
             android:id="@+id/date"
-            android:layout_marginTop="25dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
             android:ems="10"
             android:hint="@string/date"
             android:importantForAutofill="no"
@@ -64,9 +68,9 @@
 
         <EditText
             android:id="@+id/end_date"
-            android:layout_marginTop="25dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
             android:layout_marginBottom="4dp"
             android:ems="10"
             android:hint="@string/end_date"
@@ -80,8 +84,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
         android:layout_margin="15dp"
+        android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:weightSum="2">
 
@@ -91,8 +95,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
             android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
             android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
             android:layout_weight="1"
             android:text="@string/cancel" />
 

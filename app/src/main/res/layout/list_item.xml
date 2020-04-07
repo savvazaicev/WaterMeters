@@ -87,6 +87,10 @@
             android:text="@string/cold"
             android:textSize="16sp" />
 
+    </TableRow>
+
+    <TableRow>
+
         <TextView
             android:id="@+id/hot"
             android:layout_width="wrap_content"

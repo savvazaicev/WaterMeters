@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WaterMeters</string>
+    <string name="app_name">Водосчётчики</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -12,7 +12,6 @@
     <string name="number">Номер счётчика</string>
     <string name="save">Сохранить</string>
     <string name="address">Адрес</string>
-    <string name="app_in_name">WaterMeters</string>
     <string name="app_name_after">Добро пожаловать!</string>
     <string name="text_bottom">Войдите в свою учётную запись</string>
     <string name="btnSignIn">Войти</string>
@@ -29,4 +28,5 @@
     <string name="methodology">Методика</string>
     <string name="cold">Хол.</string>
     <string name="hot">Гор.</string>
+    <string name="search">Search</string>
 </resources>

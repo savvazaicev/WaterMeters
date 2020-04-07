@@ -50,15 +50,15 @@ class AuthActivity : AppCompatActivity() {
         signOut()
         authWithSavedData()
         val user = firebaseAuth?.currentUser
-        if (idToken != user?.uid) {
+        if (user?.uid == null || idToken != user?.uid) {
             db = FirebaseDatabase.getInstance()
             users = db!!.getReference("Users")
 
             btnSignIn = findViewById(R.id.btnSignIn)
-            btnRegister = findViewById(R.id.btnRegister)
-            btnRegister?.setOnClickListener {
-                showRegisterWindow()
-            }
+//            btnRegister = findViewById(R.id.btnRegister)
+//            btnRegister?.setOnClickListener {
+//                showRegisterWindow()
+//            }
             btnSignIn.setOnClickListener {
                 showSignInWindow()
             }
@@ -131,80 +131,80 @@ class AuthActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    private fun showRegisterWindow() {
-        val dialog: AlertDialog.Builder = AlertDialog.Builder(this)
-        dialog.setTitle("Зарегистрироваться")
-        dialog.setMessage("Введите все данные для регистрации")
-
-        val inflater: LayoutInflater = LayoutInflater.from(this)
-        val registerWindow: View = inflater.inflate(R.layout.register_window, null)
-        dialog.setView(registerWindow)
-
-        val email: MaterialEditText = registerWindow.findViewById(R.id.emailField)
-        val pass: MaterialEditText = registerWindow.findViewById(R.id.passField)
-        val name: MaterialEditText = registerWindow.findViewById(R.id.nameField)
-        val phone: MaterialEditText = registerWindow.findViewById(R.id.phoneField)
-
-        dialog.setNegativeButton(
-            "Отменить"
-        ) { dialogInterface, _ ->
-            dialogInterface.dismiss()
-        }
-
-        dialog.setPositiveButton(
-            "Добавить"
-        ) { _, _ ->
-            when {
-                TextUtils.isEmpty(email.text.toString()) -> {
-                    Snackbar.make(root, "Введите вашу почту", Snackbar.LENGTH_SHORT).show()
-                }
-                TextUtils.isEmpty(name.text.toString()) -> {
-                    Snackbar.make(root, "Введите ваше имя", Snackbar.LENGTH_SHORT).show()
-                }
-                TextUtils.isEmpty(phone.text.toString()) -> {
-                    Snackbar.make(root, "Введите ваш телефон", Snackbar.LENGTH_SHORT).show()
-                }
-                pass.text.toString().length < 5 -> {
-                    Snackbar.make(
-                        root,
-                        "Введите пароль, содержащий более 5 символов",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
-
-                //Регистрация пользователя
-                else -> {
-                    firebaseAuth?.createUserWithEmailAndPassword(
-                        email.text.toString(),
-                        pass.text.toString()
-                    )
-                        ?.addOnSuccessListener {
-                            val user = User(
-                                name.text.toString(),
-                                email.text.toString(),
-                                pass.text.toString(),
-                                phone.text.toString()
-                            )
-
-                            FirebaseAuth.getInstance().currentUser?.uid?.let { it1 ->
-                                users?.child(it1)?.setValue(user)
-                                    ?.addOnSuccessListener {
-                                        Snackbar.make(
-                                            root,
-                                            "Пользователь добавлен!",
-                                            Snackbar.LENGTH_SHORT
-                                        )
-                                            .show()
-                                    }
-                            }
-                        }?.addOnFailureListener {
-                            Snackbar.make(root, "Ошибка регистрации", Snackbar.LENGTH_LONG).show()
-                        }
-                }
-            }
-        }
-        dialog.show()
-    }
+//    private fun showRegisterWindow() {
+//        val dialog: AlertDialog.Builder = AlertDialog.Builder(this)
+//        dialog.setTitle("Зарегистрироваться")
+//        dialog.setMessage("Введите все данные для регистрации")
+//
+//        val inflater: LayoutInflater = LayoutInflater.from(this)
+//        val registerWindow: View = inflater.inflate(R.layout.register_window, null)
+//        dialog.setView(registerWindow)
+//
+//        val email: MaterialEditText = registerWindow.findViewById(R.id.emailField)
+//        val pass: MaterialEditText = registerWindow.findViewById(R.id.passField)
+//        val name: MaterialEditText = registerWindow.findViewById(R.id.nameField)
+//        val phone: MaterialEditText = registerWindow.findViewById(R.id.phoneField)
+//
+//        dialog.setNegativeButton(
+//            "Отменить"
+//        ) { dialogInterface, _ ->
+//            dialogInterface.dismiss()
+//        }
+//
+//        dialog.setPositiveButton(
+//            "Добавить"
+//        ) { _, _ ->
+//            when {
+//                TextUtils.isEmpty(email.text.toString()) -> {
+//                    Snackbar.make(root, "Введите вашу почту", Snackbar.LENGTH_SHORT).show()
+//                }
+//                TextUtils.isEmpty(name.text.toString()) -> {
+//                    Snackbar.make(root, "Введите ваше имя", Snackbar.LENGTH_SHORT).show()
+//                }
+//                TextUtils.isEmpty(phone.text.toString()) -> {
+//                    Snackbar.make(root, "Введите ваш телефон", Snackbar.LENGTH_SHORT).show()
+//                }
+//                pass.text.toString().length < 5 -> {
+//                    Snackbar.make(
+//                        root,
+//                        "Введите пароль, содержащий более 5 символов",
+//                        Snackbar.LENGTH_SHORT
+//                    ).show()
+//                }
+//
+//                //Регистрация пользователя
+//                else -> {
+//                    firebaseAuth?.createUserWithEmailAndPassword(
+//                        email.text.toString(),
+//                        pass.text.toString()
+//                    )
+//                        ?.addOnSuccessListener {
+//                            val user = User(
+//                                name.text.toString(),
+//                                email.text.toString(),
+//                                pass.text.toString(),
+//                                phone.text.toString()
+//                            )
+//
+//                            FirebaseAuth.getInstance().currentUser?.uid?.let { it1 ->
+//                                users?.child(it1)?.setValue(user)
+//                                    ?.addOnSuccessListener {
+//                                        Snackbar.make(
+//                                            root,
+//                                            "Пользователь добавлен!",
+//                                            Snackbar.LENGTH_SHORT
+//                                        )
+//                                            .show()
+//                                    }
+//                            }
+//                        }?.addOnFailureListener {
+//                            Snackbar.make(root, "Ошибка регистрации", Snackbar.LENGTH_LONG).show()
+//                        }
+//                }
+//            }
+//        }
+//        dialog.show()
+//    }
 
     private fun authWithSavedData() {
         val email = sharedPref?.getString(EMAIL, null)
