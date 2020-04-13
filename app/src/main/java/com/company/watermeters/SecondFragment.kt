@@ -10,9 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.company.watermeters.MainActivity.Companion.listAdapter
 import com.company.watermeters.MainActivity.Companion.listView
-import com.company.watermeters.MainActivity.Companion.selectedItem
+import com.company.watermeters.MainActivity.Companion.selectedItemRegistryNumber
 import com.company.watermeters.MainActivity.Companion.toolBar
-import com.company.watermeters.MainActivity.Companion.waterMeters
 import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.Client
 import com.google.firebase.database.DatabaseReference
@@ -25,7 +24,7 @@ class SecondFragment : Fragment() {
     private var myRef: DatabaseReference? = null
 
     companion object {
-        var action = "newItem"
+        var action = ""
     }
 
     override fun onCreateView(
@@ -44,7 +43,7 @@ class SecondFragment : Fragment() {
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
         }
         if (action == "newItem") {
-            registry_number.setText(waterMeters[selectedItem].registryNumber)
+            registry_number.setText(selectedItemRegistryNumber)
         }
         save_button.setOnClickListener { saveClient(action) }
     }
@@ -56,16 +55,13 @@ class SecondFragment : Fragment() {
         val number = view?.findViewById<EditText>(R.id.number)?.text?.toString()
         val date = view?.findViewById<EditText>(R.id.date)?.text?.toString()
         val endDate = view?.findViewById<EditText>(R.id.end_date)?.text?.toString()
-        when (tag) {
-            "newItem" -> {
-                if (fullName != "" || address != "" || number != "" || address != "") {
-                    val client = Client(fullName, address, registryNumber, number, date, endDate)
+        if (fullName != "" || address != "" || number != "" || address != "") {
+            val client = Client(fullName, address, registryNumber, number, date, endDate)
 //                    newWaterMeter.id = AddTaskAsyncTask(database, newWaterMeter).execute().get()
-                    db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
-                    myRef = db?.getReference("Clients")
-                    myRef?.setValue(client)
-                }
-            }
+            db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
+            myRef = db?.getReference("Clients")
+            myRef?.setValue(client)
+        }
 //            "editItem" -> {
 //                waterMeters[selectedItem].name = mark
 //                waterMeters[selectedItem].registryNumber = model
@@ -73,12 +69,12 @@ class SecondFragment : Fragment() {
 //                waterMeters[selectedItem].type = address
 //                UpdateTaskAsyncTask(database, waterMeters[selectedItem]).execute()
 //            }
-        }
         listAdapter?.notifyDataSetChanged()
         findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
+//
+//    override fun onDestroy() {
+//        action
+//        super.onDestroy()
+//    }
 }

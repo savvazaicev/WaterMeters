@@ -2,6 +2,7 @@ package com.company.watermeters
 
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -21,8 +22,6 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 //TODO Дизайн
-//TODO Поиск водосчётчиков
-//TODO Удалить кнопку регистрации
 //TODO Подгружать из локальной БД полседнее состояние, если нет интернета или изменений в бд
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
@@ -32,6 +31,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 // - Добавить ScrollView
 // - Заменить ConstraintLayout на RelativeLayout
 //FIXME Неправильно еотображение горячей воды
+//TODO DatePickerDialog в SecondFragment
 //TODO Шифрование данных авторизации
 //TODO Оповещение об обновлении приложения/автоматическео обновление приложения
 //TODO Добавить роль Гость
@@ -46,16 +46,19 @@ import kotlinx.android.synthetic.main.activity_main.*
 //OPTIMIZE Хранить данные входа в Shared Preferences
 //OPTIMIZE Перенести запрос к бд из главного (UI) потока в побочный
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
+//OPTIMIZE Убрать костыли типо тегов и visibility, избыточный код
+//OPTIMIZE Заменить listView на RecyclerView
+//OPTIMIZE Использовать DiffUtils для списка
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
 class MainActivity : AppCompatActivity() {
 
-    private var showMenuItems = false
+//    private var showMenuItems = false
     private var database: WaterMeterDatabase? = null
     private var db: FirebaseDatabase? = null
     private var myRef: DatabaseReference? = null
 
     companion object {
-        var selectedItem = -1
+        var selectedItemRegistryNumber: String? = null
         var listView: ListView? = null
         var toolBar: Toolbar? = null
         var waterMeters = ArrayList<WaterMeter>()
@@ -79,6 +82,7 @@ class MainActivity : AppCompatActivity() {
                                                                           position, _ ->
             showUpdateTaskUI(position)
         }
+//        Log.d("waterMetersIsEmpty", "${waterMeters.isEmpty()}")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -91,17 +95,20 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
             override fun onQueryTextChange(newText: String?): Boolean {
-                listAdapter?.getFilter()?.filter(newText)
+                listAdapter?.filter?.filter(newText)
+//                listAdapter?.notifyDataSetChanged()
                 return false
             }
         })
         searchView.setOnCloseListener {
-            searchView.onActionViewCollapsed()
-            populateListView()
-            selectedItem = -1
+//            searchView.onActionViewCollapsed()
+//            populateListView()
+            listAdapter?.updateData(waterMeters)
+//            listAdapter?.notifyDataSetChanged()
+            selectedItemRegistryNumber = null
             false
         }
-        searchView.isIconifiedByDefault = true
+//        searchView.isIconifiedByDefault = true
 //        if (showMenuItems) {
 //            menu.findItem(R.id.edit_item).isVisible = true
 //            menu.findItem(R.id.delete_item).isVisible = true
@@ -112,11 +119,15 @@ class MainActivity : AppCompatActivity() {
     private fun populateListView() {
         myRef?.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                waterMeters.clear()
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
                 dataSnapshot.children.forEach {
                     it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
                 }
-                listAdapter?.notifyDataSetChanged()
+                listAdapter?.updateData(waterMeters)
+//                listAdapter?.notifyDataSetChanged()
+//                Log.d("notifying", "listAdapterNotify")
+//                Log.d("waterMetersIsEmpty", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
             }
             override fun onCancelled(p0: DatabaseError) {
                 // Failed to read value
@@ -124,40 +135,41 @@ class MainActivity : AppCompatActivity() {
         })
         listAdapter = WaterMeterListAdapter(this, waterMeters)
         listView?.adapter = listAdapter
+//        Log.d("waterMetersIsEmpty", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
 //        waterMeters =  RetrieveTasksAsyncTask(database).execute().get() as ArrayList<WaterMeter>
     }
 
     private fun showUpdateTaskUI(selected: Int) {
-        selectedItem = selected
-        showMenuItems = true
+        selectedItemRegistryNumber = listAdapter?.getList()?.get(selected)?.registryNumber
+//        showMenuItems = true
         invalidateOptionsMenu()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (-1 != selectedItem) {
-            when {
-                R.id.edit_item == item.itemId -> {
-                    action = "editItem"
-                    listView?.visibility = View.INVISIBLE
-                    toolBar?.visibility = View.INVISIBLE
-                    findNavController(R.id.nav_host_fragment).navigate(R.id.action_FirstFragment_to_SecondFragment)
-                }
-                R.id.delete_item == item.itemId -> {
-                    val selectedWaterMeter = waterMeters[selectedItem]
-                    DeleteTaskAsyncTask(database, selectedWaterMeter).execute()
-                    waterMeters.removeAt(selectedItem)
-                    listAdapter?.notifyDataSetChanged()
-                    selectedItem = -1
-                }
-            }
-        }
-        if (R.id.refresh_item == item.itemId) {
-            populateListView()
-            listAdapter?.notifyDataSetChanged()
-            selectedItem = -1
-        }
-        return super.onOptionsItemSelected(item)
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        if (-1 != selectedItem) {
+//            when {
+//                R.id.edit_item == item.itemId -> {
+//                    action = "editItem"
+//                    listView?.visibility = View.INVISIBLE
+//                    toolBar?.visibility = View.INVISIBLE
+//                    findNavController(R.id.nav_host_fragment).navigate(R.id.action_FirstFragment_to_SecondFragment)
+//                }
+//                R.id.delete_item == item.itemId -> {
+//                    val selectedWaterMeter = waterMeters[selectedItem]
+//                    DeleteTaskAsyncTask(database, selectedWaterMeter).execute()
+//                    waterMeters.removeAt(selectedItem)
+//                    listAdapter?.notifyDataSetChanged()
+//                    selectedItem = -1
+//                }
+//            }
+//        }
+//        if (R.id.refresh_item == item.itemId) {
+//            populateListView()
+//            //listAdapter?.notifyDataSetChanged()
+//            selectedItem = -1
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
 
     private class RetrieveTasksAsyncTask(private val database: WaterMeterDatabase?) :
         AsyncTask<Void, Void, List<WaterMeter>>() {

@@ -7,22 +7,22 @@
         android:title="@string/search"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always"/>
-    <item
-        android:id="@+id/refresh_item"
-        android:icon="@drawable/ic_refresh"
-        android:title="@string/refresh"
-        android:visible="true"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/edit_item"
-        android:icon="@android:drawable/ic_menu_edit"
-        android:title="@string/edit"
-        android:visible="false"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/delete_item"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="@string/delete"
-        android:visible="false"
-        app:showAsAction="ifRoom" />
+<!--    <item-->
+<!--        android:id="@+id/refresh_item"-->
+<!--        android:icon="@drawable/ic_refresh"-->
+<!--        android:title="@string/refresh"-->
+<!--        android:visible="false"-->
+<!--        app:showAsAction="ifRoom|collapseActionView" />-->
+<!--    <item-->
+<!--        android:id="@+id/edit_item"-->
+<!--        android:icon="@android:drawable/ic_menu_edit"-->
+<!--        android:title="@string/edit"-->
+<!--        android:visible="false"-->
+<!--        app:showAsAction="ifRoom" />-->
+<!--    <item-->
+<!--        android:id="@+id/delete_item"-->
+<!--        android:icon="@android:drawable/ic_menu_delete"-->
+<!--        android:title="@string/delete"-->
+<!--        android:visible="false"-->
+<!--        app:showAsAction="ifRoom" />-->
 </menu>

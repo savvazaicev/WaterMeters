@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Entity(tableName = DBContract.WaterMeterItem.TABLE_NAME)
-class WaterMeter() {
+class WaterMeter() : Cloneable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = BaseColumns._ID)
@@ -61,5 +61,9 @@ class WaterMeter() {
         this.methodology = methodology
         this.coldWater = coldWater
         this.hotWater = hotWater
+    }
+
+    public override fun clone(): Any {
+        return super.clone()
     }
 }

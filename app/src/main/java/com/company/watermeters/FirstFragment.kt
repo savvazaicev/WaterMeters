@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.company.watermeters.MainActivity.Companion.listView
+import com.company.watermeters.MainActivity.Companion.selectedItemRegistryNumber
 import com.company.watermeters.MainActivity.Companion.toolBar
 import com.company.watermeters.SecondFragment.Companion.action
 import kotlinx.android.synthetic.main.fragment_first.*
@@ -25,8 +26,8 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         button_first.setOnClickListener {
+            if (selectedItemRegistryNumber != null) action = "newItem"
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
-            action = "newItem"
         }
     }
 }

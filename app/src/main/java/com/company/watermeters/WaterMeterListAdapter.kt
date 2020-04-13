@@ -1,21 +1,34 @@
 package com.company.watermeters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Filter
+import android.widget.Filterable
 import android.widget.TextView
+import com.company.watermeters.MainActivity.Companion.waterMeters
 import com.company.watermeters.model.WaterMeter
+import java.util.Collections.addAll
 
 class WaterMeterListAdapter(
     private val context: Context,
-    private val waterMeterList: ArrayList<WaterMeter>
-) : BaseAdapter() {
+    private var waterMeterList: ArrayList<WaterMeter>
+) : BaseAdapter(), Filterable {
+
+    private var resultList = ArrayList<WaterMeter>()
 
     private var inflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+//    override fun notifyDataSetChanged() {
+//        super.notifyDataSetChanged()
+//        waterMeterListFull.clear()
+//        waterMeterListFull.addAll(waterMeters)
+//        Log.d("notifyWMsize", "size: ${waterMeters.size}")
+//    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
 
@@ -60,8 +73,19 @@ class WaterMeterListAdapter(
         return view
     }
 
+    fun updateData(waterMeterList: ArrayList<WaterMeter>) {
+        this.waterMeterList = waterMeterList
+        waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
+        notifyDataSetChanged()
+    }
+
+    fun getList(): ArrayList<WaterMeter> {
+        return resultList
+    }
+
     override fun getItem(position: Int): Any {
-        return waterMeterList[position]
+//        return if (resultList.isEmpty()) waterMeterList[position] else resultList[position]
+        return resultList[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -69,7 +93,8 @@ class WaterMeterListAdapter(
     }
 
     override fun getCount(): Int {
-        return waterMeterList.size
+//        return if (resultList.isEmpty()) waterMeterList.size else resultList.size
+        return resultList.size
     }
 
     private class ViewHolder {
@@ -83,7 +108,7 @@ class WaterMeterListAdapter(
         var hotTextView: TextView? = null
     }
 
-    fun getFilter(): Filter? {
+    override fun getFilter(): Filter? {
         return exampleFilter
     }
 
@@ -91,22 +116,31 @@ class WaterMeterListAdapter(
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filteredList: MutableList<WaterMeter> = ArrayList()
             if (constraint == null || constraint.isEmpty()) {
-                filteredList.addAll(waterMeterList)
+                Log.d("nullCheckWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
+                waterMeters.forEach { filteredList.add(it.clone() as WaterMeter) }
+//                filteredList.addAll(waterMeters)
+//                Log.d("filteredListIsEmpty", "${filteredList.isEmpty()}")
+//                Log.d("ListFullIsEmpty", "${waterMeterListFull.isEmpty()}")
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase().trim()
-                //FIXME ConcurrentModificationException
-                for (item in waterMeterList) {
+                Log.d("beforeIterWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
+                for (item in waterMeters) {
                     if (item.registryNumber?.toLowerCase()?.contains(filterPattern) == true ||
                         item.name?.toLowerCase()?.contains(filterPattern) == true ||
-                        item.producer?.toLowerCase()?.contains(filterPattern) == true
+                        item.producer?.toLowerCase()?.contains(filterPattern) == true ||
+                        item.date?.toLowerCase()?.contains(filterPattern) == true ||
+                        item.methodology?.toLowerCase()?.contains(filterPattern) == true ||
+                        item.type?.toLowerCase()?.contains(filterPattern) == true
                     ) {
-                        filteredList.add(item)
+                        filteredList.add(item.clone() as WaterMeter)
                     }
                 }
+                Log.d("afterIterWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
             }
             val results = FilterResults()
             results.values = filteredList
+            Log.d("filteredListIsEmpty", "${filteredList.isEmpty()}")
             return results
         }
 
@@ -114,10 +148,13 @@ class WaterMeterListAdapter(
             constraint: CharSequence?,
             results: FilterResults
         ) {
-            waterMeterList.clear()
-            if (results.values != null) {
-                waterMeterList.addAll(results.values as ArrayList<WaterMeter>)
-            }
+            Log.d("beforeClearWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
+            resultList.clear()
+            Log.d("afterClearWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
+            resultList.addAll(results.values as ArrayList<WaterMeter>)
+            Log.d("afterAddAllWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
+//            if (results.values != null) {
+//            }
             notifyDataSetChanged()
         }
     }
