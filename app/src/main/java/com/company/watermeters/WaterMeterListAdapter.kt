@@ -1,7 +1,6 @@
 package com.company.watermeters
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,6 @@ import android.widget.Filterable
 import android.widget.TextView
 import com.company.watermeters.MainActivity.Companion.waterMeters
 import com.company.watermeters.model.WaterMeter
-import java.util.Collections.addAll
 
 class WaterMeterListAdapter(
     private val context: Context,
@@ -19,16 +17,9 @@ class WaterMeterListAdapter(
 ) : BaseAdapter(), Filterable {
 
     private var resultList = ArrayList<WaterMeter>()
-
+    private var noFilterResults = false
     private var inflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-//    override fun notifyDataSetChanged() {
-//        super.notifyDataSetChanged()
-//        waterMeterListFull.clear()
-//        waterMeterListFull.addAll(waterMeters)
-//        Log.d("notifyWMsize", "size: ${waterMeters.size}")
-//    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
 
@@ -73,18 +64,22 @@ class WaterMeterListAdapter(
         return view
     }
 
-    fun updateData(waterMeterList: ArrayList<WaterMeter>) {
-        this.waterMeterList = waterMeterList
-        waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
-        notifyDataSetChanged()
+    override fun notifyDataSetChanged() {
+        super.notifyDataSetChanged()
+        if (!noFilterResults) waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
     }
+
+//    fun updateData(waterMeterList: ArrayList<WaterMeter>) {
+//        this.waterMeterList = waterMeterList
+//        waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
+//        notifyDataSetChanged()
+//    }
 
     fun getList(): ArrayList<WaterMeter> {
         return resultList
     }
 
     override fun getItem(position: Int): Any {
-//        return if (resultList.isEmpty()) waterMeterList[position] else resultList[position]
         return resultList[position]
     }
 
@@ -93,7 +88,6 @@ class WaterMeterListAdapter(
     }
 
     override fun getCount(): Int {
-//        return if (resultList.isEmpty()) waterMeterList.size else resultList.size
         return resultList.size
     }
 
@@ -116,15 +110,10 @@ class WaterMeterListAdapter(
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filteredList: MutableList<WaterMeter> = ArrayList()
             if (constraint == null || constraint.isEmpty()) {
-                Log.d("nullCheckWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
                 waterMeters.forEach { filteredList.add(it.clone() as WaterMeter) }
-//                filteredList.addAll(waterMeters)
-//                Log.d("filteredListIsEmpty", "${filteredList.isEmpty()}")
-//                Log.d("ListFullIsEmpty", "${waterMeterListFull.isEmpty()}")
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase().trim()
-                Log.d("beforeIterWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
                 for (item in waterMeters) {
                     if (item.registryNumber?.toLowerCase()?.contains(filterPattern) == true ||
                         item.name?.toLowerCase()?.contains(filterPattern) == true ||
@@ -136,11 +125,10 @@ class WaterMeterListAdapter(
                         filteredList.add(item.clone() as WaterMeter)
                     }
                 }
-                Log.d("afterIterWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
             }
+            if (filteredList.isEmpty()) noFilterResults = true
             val results = FilterResults()
             results.values = filteredList
-            Log.d("filteredListIsEmpty", "${filteredList.isEmpty()}")
             return results
         }
 
@@ -148,13 +136,8 @@ class WaterMeterListAdapter(
             constraint: CharSequence?,
             results: FilterResults
         ) {
-            Log.d("beforeClearWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
             resultList.clear()
-            Log.d("afterClearWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
             resultList.addAll(results.values as ArrayList<WaterMeter>)
-            Log.d("afterAddAllWMsize", "${waterMeters.isEmpty()}, size: ${waterMeters.size}")
-//            if (results.values != null) {
-//            }
             notifyDataSetChanged()
         }
     }

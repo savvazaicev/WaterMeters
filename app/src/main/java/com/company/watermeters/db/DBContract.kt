@@ -18,11 +18,4 @@ object DBContract {
             const val COLUMN_NAME_END_HOT_WATER = "hotWater"
         }
     }
-    class AuthData: BaseColumns {
-        companion object {
-            const val TABLE_NAME = "AuthData"
-            const val COLUMN_NAME_EMAIL = "email"
-            const val COLUMN_NAME_PASSWORD = "password"
-        }
-    }
 }

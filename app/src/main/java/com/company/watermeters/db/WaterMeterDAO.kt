@@ -6,11 +6,13 @@ import com.company.watermeters.model.WaterMeter
 @Dao
 interface WaterMeterDAO {
     @Query("SELECT * FROM " + DBContract.WaterMeterItem.TABLE_NAME)
-    fun retrieveWaterMeterList(): List<WaterMeter>
+    fun retrieveItemList(): List<WaterMeter>
     @Insert
-    fun addWaterMeter(task: WaterMeter): Long
+    fun addItem(item: WaterMeter): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun updateAll(items: ArrayList<WaterMeter>)
     @Update
-    fun updateWaterMeter(task: WaterMeter)
+    fun updateItem(item: WaterMeter)
     @Delete
-    fun deleteWaterMeter(task: WaterMeter)
+    fun deleteItem(item: WaterMeter)
 }
