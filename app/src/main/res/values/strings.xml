@@ -29,4 +29,5 @@
     <string name="cold">Хол.</string>
     <string name="hot">Гор.</string>
     <string name="search">Search</string>
+    <string name="label">label</string>
 </resources>

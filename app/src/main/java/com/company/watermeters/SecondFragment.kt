@@ -14,6 +14,8 @@ import com.company.watermeters.MainActivity.Companion.selectedItemRegistryNumber
 import com.company.watermeters.MainActivity.Companion.toolBar
 import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.Client
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.fragment_second.*
@@ -43,18 +45,18 @@ class SecondFragment : Fragment() {
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
         }
         if (action == "newItem") {
-            registry_number.setText(selectedItemRegistryNumber)
+            view.findViewById<TextInputEditText>(R.id.registry_number)?.setText(selectedItemRegistryNumber)
         }
         save_button.setOnClickListener { saveClient(action) }
     }
 
     private fun saveClient(tag: String) {
-        val fullName = view?.findViewById<EditText>(R.id.full_name)?.text?.toString()
-        val address = view?.findViewById<EditText>(R.id.address)?.text?.toString()
-        val registryNumber = view?.findViewById<EditText>(R.id.registry_number)?.text?.toString()
-        val number = view?.findViewById<EditText>(R.id.number)?.text?.toString()
-        val date = view?.findViewById<EditText>(R.id.date)?.text?.toString()
-        val endDate = view?.findViewById<EditText>(R.id.end_date)?.text?.toString()
+        val fullName = view?.findViewById<TextInputEditText>(R.id.full_name)?.text?.toString()
+        val address = view?.findViewById<TextInputEditText>(R.id.address)?.text?.toString()
+        val registryNumber = view?.findViewById<TextInputEditText>(R.id.registry_number)?.text?.toString()
+        val number = view?.findViewById<TextInputEditText>(R.id.number)?.text?.toString()
+        val date = view?.findViewById<TextInputEditText>(R.id.date)?.text?.toString()
+        val endDate = view?.findViewById<TextInputEditText>(R.id.end_date)?.text?.toString()
         if (fullName != "" || address != "" || number != "" || address != "") {
             val client = Client(fullName, address, registryNumber, number, date, endDate)
 //                    newWaterMeter.id = AddTaskAsyncTask(database, newWaterMeter).execute().get()

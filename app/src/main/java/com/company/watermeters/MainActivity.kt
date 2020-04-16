@@ -18,19 +18,16 @@ import com.company.watermeters.model.WaterMeter
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 
-//TODO Дизайн
-//TODO Подгружать из локальной БД полседнее состояние, если нет интернета или изменений в бд
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
-
+//FIXME Дублироание счётчиков в бд
 //FIXME неправильное отображение SecondFragment в альбомной ориентации (и в обычной криво)
 // - Сделать отдельный UI для альбомной ориентации
 // - Добавить ScrollView
-// - Заменить ConstraintLayout на RelativeLayout
+
 //TODO DatePickerDialog в SecondFragment
 //TODO Шифрование данных авторизации
 //TODO Оповещение об обновлении приложения/автоматическео обновление приложения
-//TODO Material Design
 //TODO Кнопка выхода
 //OPTIMIZE FirstFragment становиться невидимым
 // - лучше его заменять вторым через FragmentManager
@@ -114,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateListView() {
-        myRef?.addListenerForSingleValueEvent(object : ValueEventListener {
+        myRef?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 waterMeters.clear()
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
