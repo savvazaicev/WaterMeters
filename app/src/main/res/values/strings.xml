@@ -32,4 +32,5 @@
     <string name="label">label</string>
     <string name="new_client">Новый клиент</string>
     <string name="meters">Счётчики</string>
+    <string name="add">Добавить</string>
 </resources>

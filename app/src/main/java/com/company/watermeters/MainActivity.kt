@@ -23,13 +23,11 @@ import kotlinx.android.synthetic.main.content_main.*
 // - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
 //FIXME Дублироание счётчиков в бд
 //OPTIMIZE Заменить второй фрагмент на activity
+//FIXME Криво отображается номер в реестре (отступ)
+//FIXME Неправильно отображается дата в списке
 
 //TODO DatePickerDialog в SecondFragment
-//TODO Шифрование данных авторизации
-//TODO Оповещение об обновлении приложения/автоматическео обновление приложения
 //TODO Кнопка выхода
-//OPTIMIZE FirstFragment становиться невидимым
-// - лучше его заменять вторым через FragmentManager
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
 //OPTIMIZE Перенести запрос к бд из главного (UI) потока в побочный

@@ -12,6 +12,7 @@
             android:layout_marginStart="7dp"
             android:layout_marginLeft="7dp"
             android:text="@string/registry_number"
+            android:textStyle="bold"
             android:textSize="18sp" />
     </TableRow>
 
@@ -60,6 +61,7 @@
             android:layout_marginStart="7dp"
             android:layout_marginLeft="7dp"
             android:text="@string/date"
+            android:textStyle="bold"
             android:textSize="16sp" />
 
     </TableRow>
@@ -73,31 +75,59 @@
             android:layout_marginStart="7dp"
             android:layout_marginLeft="7dp"
             android:text="@string/methodology"
+            android:textStyle="bold"
             android:textSize="16sp" />
     </TableRow>
 
     <TableRow>
 
-        <TextView
-            android:id="@+id/cold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginLeft="7dp"
-            android:text="@string/cold"
-            android:textSize="16sp" />
 
     </TableRow>
-
-    <TableRow>
-
-        <TextView
-            android:id="@+id/hot"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginLeft="7dp"
-            android:text="@string/hot"
-            android:textSize="16sp" />
-    </TableRow>
+            android:weightSum="20">
+
+            <TextView
+                android:id="@+id/cold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginLeft="7dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="7dp"
+                android:layout_weight="1"
+                android:background="#B32196F3"
+                android:gravity="center_horizontal"
+                android:text="@string/cold"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/hot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="7dp"
+                android:layout_weight="1"
+                android:background="#B3E91E63"
+                android:gravity="center_horizontal"
+                android:text="@string/hot"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+    <!--    <TableRow>-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/hot"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginStart="7dp"-->
+    <!--            android:layout_marginLeft="7dp"-->
+    <!--            android:text="@string/hot"-->
+    <!--            android:textSize="16sp" />-->
+    <!--    </TableRow>-->
 </TableLayout>
