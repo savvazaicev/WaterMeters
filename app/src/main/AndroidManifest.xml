@@ -16,7 +16,16 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
-            android:name="com.company.watermeters.AuthActivity"
+            android:name=".ClientFormActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/new_client"
+            android:theme="@style/Theme.MaterialTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+        <activity
+            android:name=".AuthActivity"
             android:theme="@style/AppTheme.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,8 +34,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.company.watermeters.MainActivity"
-            android:label="@string/app_name"
+            android:name=".MainActivity"
+            android:label="@string/meters"
             android:theme="@style/AppTheme.Default" />
     </application>
 

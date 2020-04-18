@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.MaterialTheme"
-    tools:context=".SecondFragment">
+    tools:context=".ClientFormActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,7 +17,9 @@
         android:layout_marginTop="25dp"
         android:layout_marginEnd="25dp"
         android:layout_marginRight="25dp"
-        android:gravity="center">
+        android:gravity="center"
+        android:focusableInTouchMode="false"
+        android:isScrollContainer="false">
 
         <LinearLayout
             android:layout_width="match_parent"

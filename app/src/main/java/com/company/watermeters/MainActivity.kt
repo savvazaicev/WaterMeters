@@ -1,8 +1,8 @@
 package com.company.watermeters
 
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
@@ -17,13 +17,12 @@ import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.WaterMeter
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
 //FIXME Дублироание счётчиков в бд
-//FIXME неправильное отображение SecondFragment в альбомной ориентации (и в обычной криво)
-// - Сделать отдельный UI для альбомной ориентации
-// - Добавить ScrollView
+//OPTIMIZE Заменить второй фрагмент на activity
 
 //TODO DatePickerDialog в SecondFragment
 //TODO Шифрование данных авторизации
@@ -33,10 +32,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 // - лучше его заменять вторым через FragmentManager
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
-//OPTIMIZE Передача данных между Activity и Fragments
 //OPTIMIZE Перенести запрос к бд из главного (UI) потока в побочный
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
-//OPTIMIZE Убрать костыли типо тегов и visibility, избыточный код
 //OPTIMIZE Заменить listView на RecyclerView
 //OPTIMIZE Использовать DiffUtils для списка
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
@@ -72,6 +69,11 @@ class MainActivity : AppCompatActivity() {
                                                                           position, _ ->
             showUpdateTaskUI(position)
         }
+        button_first.setOnClickListener {
+            startActivity(Intent(this, ClientFormActivity::class.java))
+//            finish()
+        }
+//        supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -132,9 +134,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (R.id.refresh_item == item.itemId) {
-            updateListView()
-            selectedItemRegistryNumber = null
+        when {
+            R.id.refresh_item == item.itemId -> {
+                updateListView()
+                selectedItemRegistryNumber = null
+            }
+//            R.id.home == item.itemId -> {
+//                supportActionBar?.setDisplayShowTitleEnabled(true)
+//            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -145,6 +152,12 @@ class MainActivity : AppCompatActivity() {
             return database?.dao()?.retrieveItemList()
         }
     }
+
+//    override fun onAddButtonClick() {
+//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        supportActionBar?.setDisplayShowTitleEnabled(false)
+//        findViewById<MenuItem>(R.id.refresh_item).isVisible = false
+//    }
 
     class AddTaskAsyncTask(
         private val database: WaterMeterDatabase?, private val newWaterMeter:
@@ -181,4 +194,5 @@ class MainActivity : AppCompatActivity() {
             return database?.dao()?.deleteItem(selected)
         }
     }
+
 }
