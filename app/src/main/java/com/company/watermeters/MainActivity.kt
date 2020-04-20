@@ -22,12 +22,14 @@ import kotlinx.android.synthetic.main.content_main.*
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
 //FIXME Дублироание счётчиков в бд
-//OPTIMIZE Заменить второй фрагмент на activity
 //FIXME Криво отображается номер в реестре (отступ)
 //FIXME Неправильно отображается дата в списке
+//FIXME При добавлении клиента старый удаляется
 
+//TODO Уведомление при успшной отправке формы (SnackBar)
 //TODO DatePickerDialog в SecondFragment
 //TODO Кнопка выхода
+//TODO фрагмент загрузки счётчиков
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
 //OPTIMIZE Перенести запрос к бд из главного (UI) потока в побочный
@@ -71,7 +73,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ClientFormActivity::class.java))
 //            finish()
         }
-//        supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -137,9 +138,6 @@ class MainActivity : AppCompatActivity() {
                 updateListView()
                 selectedItemRegistryNumber = null
             }
-//            R.id.home == item.itemId -> {
-//                supportActionBar?.setDisplayShowTitleEnabled(true)
-//            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -150,12 +148,6 @@ class MainActivity : AppCompatActivity() {
             return database?.dao()?.retrieveItemList()
         }
     }
-
-//    override fun onAddButtonClick() {
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        supportActionBar?.setDisplayShowTitleEnabled(false)
-//        findViewById<MenuItem>(R.id.refresh_item).isVisible = false
-//    }
 
     class AddTaskAsyncTask(
         private val database: WaterMeterDatabase?, private val newWaterMeter:
