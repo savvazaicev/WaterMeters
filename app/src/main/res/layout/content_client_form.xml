@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.MaterialTheme"
+    android:id="@+id/root_element"
     tools:context=".ClientFormActivity">
 
     <ScrollView
@@ -124,6 +125,7 @@
                     android:ems="10"
                     android:hint="@string/date"
                     android:importantForAutofill="no"
+                    android:focusable="false"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -145,6 +147,7 @@
                     android:ems="10"
                     android:hint="@string/end_date"
                     android:importantForAutofill="no"
+                    android:focusable="false"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 

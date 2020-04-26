@@ -10,7 +10,11 @@ import android.widget.Filterable
 import android.widget.TextView
 import com.company.watermeters.MainActivity.Companion.waterMeters
 import com.company.watermeters.model.WaterMeter
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
+//OPTIMIZE Не нужно передавать context в адаптер, его можно получить из View
 class WaterMeterListAdapter(
     private val context: Context,
     private var waterMeterList: ArrayList<WaterMeter>
@@ -57,11 +61,27 @@ class WaterMeterListAdapter(
         nameTextView?.text = waterMeter.name
         typeTextView?.text = waterMeter.type
         producerTextView?.text = waterMeter.producer
-        dateTextView?.text = waterMeter.date
+        dateTextView?.text = formatDate(waterMeter)
         methodologyTextView?.text = waterMeter.methodology
         coldTextView?.text = "Хол. " + waterMeter.coldWater
         hotTextView?.text = "Гор. " + waterMeter.hotWater
         return view
+    }
+
+    private fun formatDate(waterMeter: WaterMeter): String? {
+        var formattedDate: String? = waterMeter.date
+        if (formattedDate != null) {
+            try {
+                val formattedString = SimpleDateFormat("d/M/yy", Locale("ru")).parse(formattedDate)
+                if (formattedString != null) {
+                    formattedDate =
+                        SimpleDateFormat("dd.MM.yyyy", Locale("ru")).format(formattedString)
+                }
+            } finally {
+                return formattedDate
+            }
+        }
+        return formattedDate
     }
 
     override fun notifyDataSetChanged() {

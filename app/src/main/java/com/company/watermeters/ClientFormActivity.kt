@@ -1,40 +1,49 @@
 package com.company.watermeters
 
+import android.app.DatePickerDialog
+import android.icu.text.DateFormat.getDateTimeInstance
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.widget.DatePicker
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.DialogFragment
 import com.company.watermeters.model.Client
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.content_client_form.*
+import android.text.format.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
-class ClientFormActivity : AppCompatActivity() {
+class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
     private var db: FirebaseDatabase? = null
     private var myRef: DatabaseReference? = null
+    private lateinit var root: RelativeLayout
+    private lateinit var textView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_client_form)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setHomeButtonEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener {
-            onBackPressed()
-        }
-
+        setBackButton()
         registry_number?.setText(MainActivity.selectedItemRegistryNumber)
+        MainActivity.selectedItemRegistryNumber = null
         save_button.setOnClickListener { saveClient() }
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(0, R.anim.left_to_right)
+        root = findViewById(R.id.root_element)
+        date.setOnClickListener {
+            textView = date
+            val datePicker: DialogFragment = DatePickerFragment()
+            datePicker.show(supportFragmentManager, "date picker")
+        }
+        end_date.setOnClickListener {
+            textView = end_date
+            val datePicker: DialogFragment = DatePickerFragment()
+            datePicker.show(supportFragmentManager, "date picker")
+        }
     }
 
     private fun saveClient() {
@@ -48,7 +57,38 @@ class ClientFormActivity : AppCompatActivity() {
             val client = Client(fullName, address, registryNumber, number, date, endDate)
             db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
             myRef = db?.getReference("Clients")
-            myRef?.setValue(client)
+            myRef?.push()?.setValue(client)
+                ?.addOnCompleteListener {
+                    Snackbar.make(root, "Клиент успешно добавлен", Snackbar.LENGTH_SHORT).show()
+                }
+                ?.addOnFailureListener {
+                    Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
+                }
         }
+    }
+
+    override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
+        val c: Calendar = Calendar.getInstance()
+        c.set(Calendar.YEAR, year)
+        c.set(Calendar.MONTH, month)
+        c.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        val format = SimpleDateFormat("dd.MM.yyyy", Locale("ru"))
+        val currentDateString: String = format.format(c.time)
+        textView.text = currentDateString
+    }
+
+    private fun setBackButton() {
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(0, R.anim.left_to_right)
     }
 }

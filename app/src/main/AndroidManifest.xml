@@ -37,6 +37,10 @@
             android:name=".MainActivity"
             android:label="@string/meters"
             android:theme="@style/AppTheme.Default" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

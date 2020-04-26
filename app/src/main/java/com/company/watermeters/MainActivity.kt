@@ -19,32 +19,31 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-//FIXME Не показывать экран регистрации, если аутентификация успешна
-// - Авторизироваться из MainActivity и при ошибке стартовать AuthActivity
-//FIXME Дублироание счётчиков в бд
-//FIXME Криво отображается номер в реестре (отступ)
-//FIXME Неправильно отображается дата в списке
-//FIXME При добавлении клиента старый удаляется
 
-//TODO Уведомление при успшной отправке формы (SnackBar)
+//FIXME Не показывать экран регистрации, если аутентификация успешна
+// - Заменить все активности на фрагменты
+//FIXME Дублироание счётчиков в бд
+//FIXME Неправильно отображается дата в списке
+
 //TODO DatePickerDialog в SecondFragment
 //TODO Кнопка выхода
 //TODO фрагмент загрузки счётчиков
+//OPTIMIZE Если данные в форме не изменились, не разрешать повторную отправку формы
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
-//OPTIMIZE Перенести запрос к бд из главного (UI) потока в побочный
+//OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
 //OPTIMIZE Заменить listView на RecyclerView
 //OPTIMIZE Использовать DiffUtils для списка
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
 class MainActivity : AppCompatActivity() {
 
-    //    private var showMenuItems = false
     private var database: WaterMeterDatabase? = null
     private var db: FirebaseDatabase? = null
     private var myRef: DatabaseReference? = null
 
     companion object {
+        //OPTIMIZE Передать в интенте
         var selectedItemRegistryNumber: String? = null
         var listView: ListView? = null
         var toolBar: Toolbar? = null
@@ -67,11 +66,11 @@ class MainActivity : AppCompatActivity() {
         populateListView()
         listView?.onItemClickListener = AdapterView.OnItemClickListener { _, _,
                                                                           position, _ ->
-            showUpdateTaskUI(position)
+            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
+            startActivity(Intent(this, ClientFormActivity::class.java))
         }
         button_first.setOnClickListener {
             startActivity(Intent(this, ClientFormActivity::class.java))
-//            finish()
         }
     }
 
@@ -129,7 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showUpdateTaskUI(selected: Int) {
         selectedItemRegistryNumber = listAdapter?.getList()?.get(selected)?.registryNumber
-        invalidateOptionsMenu()
+        startActivity(Intent(this, ClientFormActivity::class.java))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -184,5 +183,4 @@ class MainActivity : AppCompatActivity() {
             return database?.dao()?.deleteItem(selected)
         }
     }
-
 }
