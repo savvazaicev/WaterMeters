@@ -6,7 +6,7 @@
     <string name="cancel">Отмена</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
-    <string name="refresh">Refresh</string>
+    <string name="refresh">Обновить</string>
     <string name="registry_number">Номер в реестре</string>
     <string name="date">Дата поверки</string>
     <string name="number">Номер счётчика</string>
@@ -28,9 +28,10 @@
     <string name="methodology">Методика</string>
     <string name="cold">Хол.</string>
     <string name="hot">Гор.</string>
-    <string name="search">Search</string>
+    <string name="search">Поиск</string>
     <string name="label">label</string>
     <string name="new_client">Новый клиент</string>
     <string name="meters">Счётчики</string>
     <string name="add">Добавить</string>
+    <string name="exit">Выйти</string>
 </resources>

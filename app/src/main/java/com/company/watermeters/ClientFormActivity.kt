@@ -1,6 +1,8 @@
 package com.company.watermeters
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.icu.text.DateFormat.getDateTimeInstance
 import android.os.Bundle
 import android.widget.DatePicker
@@ -59,10 +61,16 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
             myRef = db?.getReference("Clients")
             myRef?.push()?.setValue(client)
                 ?.addOnCompleteListener {
-                    Snackbar.make(root, "Клиент успешно добавлен", Snackbar.LENGTH_SHORT).show()
+                    val intent = Intent()
+                    intent.putExtra("customerIsAdded", true)
+                    setResult(Activity.RESULT_OK, intent)
+                    finish()
                 }
                 ?.addOnFailureListener {
-                    Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
+                    val intent = Intent()
+                    intent.putExtra("customerIsAdded", false)
+                    setResult(Activity.RESULT_OK, intent)
+                    finish()
                 }
         }
     }

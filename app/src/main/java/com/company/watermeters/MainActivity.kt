@@ -11,10 +11,12 @@ import android.widget.ListView
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.room.Room
 import com.company.watermeters.db.DBContract.DATABASE_NAME
 import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.WaterMeter
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -24,6 +26,7 @@ import kotlinx.android.synthetic.main.content_main.*
 // - Заменить все активности на фрагменты
 //FIXME Дублироание счётчиков в бд
 //FIXME Неправильно отображается дата в списке
+//FIXME Выводить сообщение об ошибке, если нет интернета
 
 //TODO DatePickerDialog в SecondFragment
 //TODO Кнопка выхода
@@ -41,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private var database: WaterMeterDatabase? = null
     private var db: FirebaseDatabase? = null
     private var myRef: DatabaseReference? = null
+    private lateinit var root: CoordinatorLayout
 
     companion object {
         //OPTIMIZE Передать в интенте
@@ -67,11 +71,12 @@ class MainActivity : AppCompatActivity() {
         listView?.onItemClickListener = AdapterView.OnItemClickListener { _, _,
                                                                           position, _ ->
             selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
-            startActivity(Intent(this, ClientFormActivity::class.java))
+            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
         }
         button_first.setOnClickListener {
-            startActivity(Intent(this, ClientFormActivity::class.java))
+            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
         }
+        root = findViewById(R.id.root_element)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -126,19 +131,30 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun showUpdateTaskUI(selected: Int) {
-        selectedItemRegistryNumber = listAdapter?.getList()?.get(selected)?.registryNumber
-        startActivity(Intent(this, ClientFormActivity::class.java))
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when {
             R.id.refresh_item == item.itemId -> {
                 updateListView()
                 selectedItemRegistryNumber = null
             }
+            R.id.exit_item == item.itemId -> {
+                val intent = Intent(this, AuthActivity::class.java)
+                intent.putExtra("actionExit", true)
+                startActivity(intent)
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (data == null) return
+        val customerIsAdded: Boolean = data.getBooleanExtra("customerIsAdded", false)
+        if (customerIsAdded) {
+            Snackbar.make(root, "Клиент успешно добавлен", Snackbar.LENGTH_SHORT).show()
+        } else {
+            Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private class RetrieveItemsAsyncTask(private val database: WaterMeterDatabase?) :

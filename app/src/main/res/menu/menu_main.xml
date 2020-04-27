@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<!--    <item-->
-<!--        android:id="@+id/back_item"-->
-<!--        android:icon="@drawable/ic_back"-->
-<!--        android:title="Back"-->
-<!--        android:visible="true"-->
-<!--        app:showAsAction="ifRoom" />-->
     <item
         android:id="@+id/search_item"
         android:icon="@drawable/ic_search"
@@ -18,5 +12,11 @@
         android:icon="@drawable/ic_refresh"
         android:title="@string/refresh"
         android:visible="true"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/exit_item"
+        android:icon="@drawable/ic_exit"
+        android:title="@string/exit"
+        android:visible="true"
+        app:showAsAction="collapseActionView" />
 </menu>

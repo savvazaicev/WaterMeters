@@ -44,7 +44,11 @@ class AuthActivity : AppCompatActivity() {
         sharedPref = this.getPreferences(Context.MODE_PRIVATE)
         val idToken = sharedPref?.getString(USER_ID, null)
         signOut()
-        authWithSavedData()
+        if (intent.getBooleanExtra("actionExit", false)) {
+            saveAuthData(null, null,null)
+        } else {
+            authWithSavedData()
+        }
         val user = firebaseAuth?.currentUser
         if (user?.uid == null || idToken != user.uid) {
             db = FirebaseDatabase.getInstance()
