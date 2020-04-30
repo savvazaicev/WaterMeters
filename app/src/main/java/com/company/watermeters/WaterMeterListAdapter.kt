@@ -1,6 +1,7 @@
 package com.company.watermeters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,7 @@ class WaterMeterListAdapter(
 ) : BaseAdapter(), Filterable {
 
     private var resultList = ArrayList<WaterMeter>()
-    private var noFilterResults = false
+    private var noFilterResults = true
     private var inflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -68,6 +69,7 @@ class WaterMeterListAdapter(
         return view
     }
 
+    //FIXME Перенести метод к запросу к бд
     private fun formatDate(waterMeter: WaterMeter): String? {
         var formattedDate: String? = waterMeter.date
         if (formattedDate != null) {
@@ -86,7 +88,8 @@ class WaterMeterListAdapter(
 
     override fun notifyDataSetChanged() {
         super.notifyDataSetChanged()
-        if (!noFilterResults) waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
+        if (noFilterResults) waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
+        Log.d("notify, wM size: ", waterMeters.size.toString())
     }
 
 //    fun updateData(waterMeterList: ArrayList<WaterMeter>) {
@@ -131,6 +134,7 @@ class WaterMeterListAdapter(
             val filteredList: MutableList<WaterMeter> = ArrayList()
             if (constraint == null || constraint.isEmpty()) {
                 waterMeters.forEach { filteredList.add(it.clone() as WaterMeter) }
+                Log.d("con null, em, wM size: ", waterMeters.size.toString())
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase().trim()
@@ -145,8 +149,10 @@ class WaterMeterListAdapter(
                         filteredList.add(item.clone() as WaterMeter)
                     }
                 }
+                Log.d("con not empt, fL size: ", filteredList.size.toString())
             }
-            if (filteredList.isEmpty()) noFilterResults = true
+            noFilterResults = filteredList.isEmpty()
+            Log.d("wM noResults: ", noFilterResults.toString())
             val results = FilterResults()
             results.values = filteredList
             return results
@@ -158,6 +164,7 @@ class WaterMeterListAdapter(
         ) {
             resultList.clear()
             resultList.addAll(results.values as ArrayList<WaterMeter>)
+            Log.d("con not empt, rL size: ", resultList.size.toString())
             notifyDataSetChanged()
         }
     }

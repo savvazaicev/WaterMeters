@@ -3,7 +3,6 @@ package com.company.watermeters
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.icu.text.DateFormat.getDateTimeInstance
 import android.os.Bundle
 import android.widget.DatePicker
 import android.widget.RelativeLayout
@@ -17,7 +16,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.content_client_form.*
-import android.text.format.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -67,10 +65,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                     finish()
                 }
                 ?.addOnFailureListener {
-                    val intent = Intent()
-                    intent.putExtra("customerIsAdded", false)
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
+                    Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
                 }
         }
     }

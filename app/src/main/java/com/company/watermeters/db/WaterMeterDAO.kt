@@ -9,7 +9,7 @@ interface WaterMeterDAO {
     fun retrieveItemList(): List<WaterMeter>
     @Insert
     fun addItem(item: WaterMeter): Long
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateAll(items: ArrayList<WaterMeter>)
     @Update
     fun updateItem(item: WaterMeter)

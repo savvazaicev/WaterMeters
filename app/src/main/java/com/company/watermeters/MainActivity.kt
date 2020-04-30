@@ -3,6 +3,7 @@ package com.company.watermeters
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
@@ -24,14 +25,8 @@ import kotlinx.android.synthetic.main.content_main.*
 
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Заменить все активности на фрагменты
-//FIXME Дублироание счётчиков в бд
-//FIXME Неправильно отображается дата в списке
-//FIXME Выводить сообщение об ошибке, если нет интернета
 
-//TODO DatePickerDialog в SecondFragment
-//TODO Кнопка выхода
 //TODO фрагмент загрузки счётчиков
-//OPTIMIZE Если данные в форме не изменились, не разрешать повторную отправку формы
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
 //OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
@@ -83,11 +78,11 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_main, menu)
         val searchItem = menu.findItem(R.id.search_item)
         val searchView = searchItem.actionView as SearchView
-        val refreshItem = menu.findItem(R.id.refresh_item)
+//        val refreshItem = menu.findItem(R.id.refresh_item)
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-        searchView.setOnSearchClickListener {
-            refreshItem.isVisible = false
-        }
+//        searchView.setOnSearchClickListener {
+//            refreshItem.isVisible = false
+//        }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -101,7 +96,7 @@ class MainActivity : AppCompatActivity() {
         searchView.setOnCloseListener {
             listAdapter?.notifyDataSetChanged()
             selectedItemRegistryNumber = null
-            refreshItem.isVisible = true
+//            refreshItem.isVisible = true
             false
         }
         return true
@@ -110,7 +105,9 @@ class MainActivity : AppCompatActivity() {
     private fun populateListView() {
         listAdapter = WaterMeterListAdapter(this, waterMeters)
         listView?.adapter = listAdapter
+//        Log.d("wM before retriv size: ", waterMeters.size.toString())
         waterMeters = RetrieveItemsAsyncTask(database).execute().get() as ArrayList<WaterMeter>
+        Log.d("wM after retriv size: ", waterMeters.size.toString())
         listAdapter?.notifyDataSetChanged()
         if (waterMeters.isEmpty()) updateListView()
     }
@@ -119,12 +116,16 @@ class MainActivity : AppCompatActivity() {
         myRef?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 waterMeters.clear()
+//                Log.d("wM after clear size: ", waterMeters.size.toString())
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
                 dataSnapshot.children.forEach {
                     it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
                 }
+//                Log.d("wM after upd size: ", waterMeters.size.toString())
                 listAdapter?.notifyDataSetChanged()
+//                Log.d("wM before update size: ", waterMeters.size.toString())
                 UpdateAllAsyncTask(database, waterMeters).execute()
+//                Log.d("wM after update size: ", waterMeters.size.toString())
             }
 
             override fun onCancelled(p0: DatabaseError) {}
@@ -133,10 +134,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when {
-            R.id.refresh_item == item.itemId -> {
-                updateListView()
-                selectedItemRegistryNumber = null
-            }
+//            R.id.refresh_item == item.itemId -> {
+//                updateListView()
+//                selectedItemRegistryNumber = null
+//            }
             R.id.exit_item == item.itemId -> {
                 val intent = Intent(this, AuthActivity::class.java)
                 intent.putExtra("actionExit", true)

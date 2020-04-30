@@ -29,6 +29,7 @@ class AuthActivity : AppCompatActivity() {
     private var sharedPref: SharedPreferences? = null
     private lateinit var root: RelativeLayout
 
+    //OPTIMIZE Попробовать сделать без объекта компаньона
     companion object {
         const val USER_ID = "userId"
         const val EMAIL = "email"
