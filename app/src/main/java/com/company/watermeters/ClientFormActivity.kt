@@ -2,8 +2,10 @@ package com.company.watermeters
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.DatePicker
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -18,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.content_client_form.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
@@ -53,21 +56,25 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
         val number = findViewById<TextInputEditText>(R.id.number)?.text?.toString()
         val date = findViewById<TextInputEditText>(R.id.date)?.text?.toString()
         val endDate = findViewById<TextInputEditText>(R.id.end_date)?.text?.toString()
-        if (fullName != "" || address != "" || number != "" || address != "") {
-            val client = Client(fullName, address, registryNumber, number, date, endDate)
-            db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
-            myRef = db?.getReference("Clients")
-            myRef?.push()?.setValue(client)
-                ?.addOnCompleteListener {
-                    val intent = Intent()
-                    intent.putExtra("customerIsAdded", true)
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
-                }
-                ?.addOnFailureListener {
-                    Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
-                }
-        }
+        val sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
+        val email = sharedPref?.getString("email", null)
+        if (fullName == "" || address == "" || number == "") return
+        save_button.isEnabled = false
+        val client = Client(fullName, address, registryNumber, number, date, endDate, email)
+        db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
+        myRef = db?.getReference("Clients")
+        myRef?.push()?.setValue(client)
+            ?.addOnCompleteListener {
+                val intent = Intent()
+                //OPTIMIZE лишние строки
+                intent.putExtra("customerIsAdded", true)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
+            ?.addOnFailureListener {
+                Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
+                save_button.isEnabled = true
+            }
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {

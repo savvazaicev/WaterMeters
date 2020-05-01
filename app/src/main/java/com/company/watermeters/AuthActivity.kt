@@ -29,7 +29,6 @@ class AuthActivity : AppCompatActivity() {
     private var sharedPref: SharedPreferences? = null
     private lateinit var root: RelativeLayout
 
-    //OPTIMIZE Попробовать сделать без объекта компаньона
     companion object {
         const val USER_ID = "userId"
         const val EMAIL = "email"
@@ -42,7 +41,7 @@ class AuthActivity : AppCompatActivity() {
         root = findViewById(R.id.root_element)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+        sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
         val idToken = sharedPref?.getString(USER_ID, null)
         signOut()
         if (intent.getBooleanExtra("actionExit", false)) {
@@ -100,7 +99,7 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun saveAuthData(uid: String?, email: String?, password: String?) {
-        val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
         editor.putString(USER_ID, uid)
         editor.putString(EMAIL, email)

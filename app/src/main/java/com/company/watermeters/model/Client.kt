@@ -9,5 +9,6 @@ class Client(
     var registryNumber: String?,
     var number: String?,
     var date: String?,
-    var endDate: String?
+    var endDate: String?,
+    var email: String?
 )
