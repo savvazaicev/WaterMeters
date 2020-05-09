@@ -5,7 +5,6 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.DatePicker
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -20,7 +19,6 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.content_client_form.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
@@ -50,6 +48,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
     }
 
     private fun saveClient() {
+        //OPTIMIZE
         val fullName = findViewById<TextInputEditText>(R.id.full_name)?.text?.toString()
         val address = findViewById<TextInputEditText>(R.id.address)?.text?.toString()
         val registryNumber = findViewById<TextInputEditText>(R.id.registry_number)?.text?.toString()
@@ -58,7 +57,15 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
         val endDate = findViewById<TextInputEditText>(R.id.end_date)?.text?.toString()
         val sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
         val email = sharedPref?.getString("email", null)
-        if (fullName == "" || address == "" || number == "") return
+        fullNameLayout.error = if (fullName == "") getString(R.string.requiredField) else null
+        addressLayout.error = if (address == "") getString(R.string.requiredField) else null
+        registryNumberLayout.error = if (registryNumber == "") getString(R.string.requiredField) else null
+        numberLayout.error = if (number == "") getString(R.string.requiredField) else null
+        dateLayout.error = if (date == "") getString(R.string.requiredField) else null
+        endDateLayout.error = if (endDate == "") getString(R.string.requiredField) else null
+        if (fullName == "" || address == "" || registryNumber == "" ||
+            number == "" || date == "" || endDate == ""
+        ) return
         save_button.isEnabled = false
         val client = Client(fullName, address, registryNumber, number, date, endDate, email)
         db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")

@@ -21,7 +21,7 @@
     <string name="type_name">Введите имя</string>
     <string name="phone">Телефон</string>
     <string name="full_name">ФИО</string>
-    <string name="end_date">Дата окнчания поверки</string>
+    <string name="end_date">Дата окончания поверки</string>
     <string name="name">Наименование СИ</string>
     <string name="type">Тип СИ</string>
     <string name="producer">Изготовитель</string>
@@ -34,4 +34,5 @@
     <string name="meters">Счётчики</string>
     <string name="add">Добавить</string>
     <string name="exit">Выйти</string>
+    <string name="requiredField">Обязательное поле</string>
 </resources>

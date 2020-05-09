@@ -25,19 +25,17 @@ import kotlinx.android.synthetic.main.content_main.*
 
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Заменить все активности на фрагменты
-//FIXME Запретить повторную отправку формы
-//TODO Добавлять эмаил того, кто добавил клиента в форму
+//OPTIMIZE Заменить listView на RecyclerView
 
-//TODO Подсвечивать красным незаполненные обязательные поля
 //TODO фрагмент загрузки счётчиков
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
 //OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
-//OPTIMIZE Заменить listView на RecyclerView
 //OPTIMIZE Использовать DiffUtils для списка
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
 //OPTIMIZE Использовать ViewBinding
+//OPTIMIZE Попробовать фабричный метод
 class MainActivity : AppCompatActivity() {
 
     private var database: WaterMeterDatabase? = null
