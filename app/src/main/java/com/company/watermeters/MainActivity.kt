@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ListView
@@ -13,6 +14,9 @@ import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.company.watermeters.db.DBContract.DATABASE_NAME
 import com.company.watermeters.db.WaterMeterDatabase
@@ -27,6 +31,8 @@ import kotlinx.android.synthetic.main.content_main.*
 // - Заменить все активности на фрагменты
 //OPTIMIZE Заменить listView на RecyclerView
 
+//FIXME Отдельный класс с онитемкликером заменить на обычный вызов, нет анимации клика
+//FIXME Данные не сохраняются локально, все время загружаются из интернета
 //TODO фрагмент загрузки счётчиков
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
@@ -46,7 +52,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         //OPTIMIZE Передать в интенте
         var selectedItemRegistryNumber: String? = null
-        var listView: ListView? = null
         var toolBar: Toolbar? = null
         var waterMeters = ArrayList<WaterMeter>()
         var listAdapter: WaterMeterListAdapter? = null
@@ -62,14 +67,13 @@ class MainActivity : AppCompatActivity() {
         ).build()
         db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
         myRef = db?.getReference("WaterMeters")
-        listView = findViewById(R.id.list_view)
         toolBar = findViewById(R.id.toolbar)
         populateListView()
-        listView?.onItemClickListener = AdapterView.OnItemClickListener { _, _,
-                                                                          position, _ ->
-            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
-            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
-        }
+//        recyclerView?.onItemClickListener = AdapterView.OnItemClickListener { _, _,
+//                                                                              position, _ ->
+//            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
+//            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
+//        }
         button_first.setOnClickListener {
             startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
         }
@@ -96,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
         searchView.setOnCloseListener {
+            listAdapter?.setItems()
             listAdapter?.notifyDataSetChanged()
             selectedItemRegistryNumber = null
 //            refreshItem.isVisible = true
@@ -105,11 +110,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun populateListView() {
-        listAdapter = WaterMeterListAdapter(this, waterMeters)
-        listView?.adapter = listAdapter
-//        Log.d("wM before retriv size: ", waterMeters.size.toString())
+        val recyclerView = findViewById<RecyclerView>(R.id.list)
+        recyclerView.setHasFixedSize(true)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
+        listAdapter = WaterMeterListAdapter(waterMeters)
+        recyclerView.adapter = listAdapter
+        val dividerItemDecoration = DividerItemDecoration(recyclerView.context, layoutManager.orientation)
+        recyclerView.addItemDecoration(dividerItemDecoration)
+        recyclerView.setOnItemClickListener { position ->
+            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
+            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
+        }
+//        recyclerView.setHasFixedSize(true)
+        Log.d("wM before retriv size: ", waterMeters.size.toString())
         waterMeters = RetrieveItemsAsyncTask(database).execute().get() as ArrayList<WaterMeter>
         Log.d("wM after retriv size: ", waterMeters.size.toString())
+        listAdapter?.setItems()
         listAdapter?.notifyDataSetChanged()
         if (waterMeters.isEmpty()) updateListView()
     }
@@ -118,12 +135,13 @@ class MainActivity : AppCompatActivity() {
         myRef?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 waterMeters.clear()
-//                Log.d("wM after clear size: ", waterMeters.size.toString())
+                Log.d("wM after clear size: ", waterMeters.size.toString())
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
                 dataSnapshot.children.forEach {
                     it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
                 }
-//                Log.d("wM after upd size: ", waterMeters.size.toString())
+                Log.d("wM after upd size: ", waterMeters.size.toString())
+                listAdapter?.setItems()
                 listAdapter?.notifyDataSetChanged()
 //                Log.d("wM before update size: ", waterMeters.size.toString())
                 UpdateAllAsyncTask(database, waterMeters).execute()
@@ -158,6 +176,17 @@ class MainActivity : AppCompatActivity() {
         } else {
             Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
         }
+    }
+
+    private inline fun RecyclerView.setOnItemClickListener(crossinline listener: (position: Int) -> Unit) {
+        addOnItemTouchListener(
+            RecyclerItemClickListener(this,
+                object : RecyclerItemClickListener.OnItemClickListener {
+                    override fun onItemClick(view: View, position: Int) {
+                        listener(position)
+                    }
+                })
+        )
     }
 
     private class RetrieveItemsAsyncTask(private val database: WaterMeterDatabase?) :
