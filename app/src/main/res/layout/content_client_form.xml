@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_element"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.MaterialTheme"
-    android:id="@+id/root_element"
     tools:context=".ClientFormActivity">
 
     <ScrollView
@@ -32,8 +32,8 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:errorEnabled="true"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -55,8 +55,8 @@
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
-                app:errorEnabled="true"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -78,8 +78,8 @@
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
-                app:errorEnabled="true"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -101,8 +101,8 @@
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
-                app:errorEnabled="true"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -124,8 +124,8 @@
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
-                app:errorEnabled="true"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -133,9 +133,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:ems="10"
+                    android:focusable="false"
                     android:hint="@string/date"
                     android:importantForAutofill="no"
-                    android:focusable="false"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -148,8 +148,8 @@
                 android:ems="10"
                 android:importantForAutofill="no"
                 android:inputType="textPersonName"
-                app:errorEnabled="true"
-                app:boxBackgroundMode="outline">
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
 
@@ -157,9 +157,64 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:ems="10"
+                    android:focusable="false"
                     android:hint="@string/end_date"
                     android:importantForAutofill="no"
-                    android:focusable="false"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/waterTypeLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:ems="10"
+                android:importantForAutofill="no"
+                android:inputType="textPersonName"
+                app:boxBackgroundMode="outline"
+                app:endIconMode="dropdown_menu"
+                app:errorEnabled="true">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/waterType"
+                    android:importantForAutofill="no"
+                    android:inputType="textPersonName" />
+
+                <!--                <com.google.android.material.textfield.TextInputEditText-->
+
+                <!--                    android:id="@+id/waterType"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:ems="10"-->
+                <!--                    android:hint="@string/waterType"-->
+                <!--                    android:importantForAutofill="no"-->
+                <!--                    android:inputType="textPersonName" />-->
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/certificateNumberLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:ems="10"
+                android:importantForAutofill="no"
+                android:inputType="textPersonName"
+                app:boxBackgroundMode="outline"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+
+                    android:id="@+id/certificateNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:ems="10"
+                    android:hint="@string/certificateNumber"
+                    android:importantForAutofill="no"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -175,8 +230,8 @@
         android:layout_centerHorizontal="true"
         android:layout_margin="16dp"
         android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:weightSum="1">
+        android:orientation="vertical"
+        android:weightSum="2">
 
         <Button
             android:id="@+id/save_button"
@@ -185,6 +240,34 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/add" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/addPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="@string/add_photo"
+                android:textColor="#000000" />
+
+            <ImageButton
+                android:id="@+id/clearButton"
+                android:paddingTop="2dp"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:src="@drawable/ic_clear_red"
+                android:contentDescription="@string/clear_selected_images" />
+        </LinearLayout>
 
     </LinearLayout>
 </RelativeLayout>

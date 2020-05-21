@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.company.watermeters.MainActivity.Companion.waterMeters
 import com.company.watermeters.model.WaterMeter
@@ -15,59 +16,18 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 //OPTIMIZE Не нужно передавать context в адаптер, его можно получить из View
+//FIXME конструктор не передаются данные
 class WaterMeterListAdapter(
-//    private val context: Context,
-    private var waterMeterList: ArrayList<WaterMeter>
-//    private var itemView: View
+    waterMeterss: ArrayList<WaterMeter>
 ) : RecyclerView.Adapter<WaterMeterListAdapter.ViewHolder>(), Filterable {
 
+    private var waterMeterList: ArrayList<WaterMeter>
+
+    init {
+        waterMeterList = waterMeterss
+    }
     private var resultList = ArrayList<WaterMeter>()
     private var noFilterResults = true
-//    private var inflater =
-//        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-//
-//    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-//
-//        var itemView = convertView
-//        val viewHolder: ViewHolder?
-//        if (itemView == null) {
-//            itemView = inflater.inflate(R.layout.list_item, parent, false)
-//            viewHolder = ViewHolder()
-//            viewHolder.registryNumberTextView = itemView.findViewById(R.id.registry_number)
-//            viewHolder.nameTextView = itemView.findViewById(R.id.name)
-//            viewHolder.typeTextView = itemView.findViewById(R.id.type)
-//            viewHolder.producerTextView = itemView.findViewById(R.id.producer)
-//            viewHolder.dateTextView = itemView.findViewById(R.id.date)
-//            viewHolder.methodologyTextView = itemView.findViewById(R.id.methodology)
-//            viewHolder.coldTextView = itemView.findViewById(R.id.cold)
-//            viewHolder.hotTextView = itemView.findViewById(R.id.hot)
-//
-//            itemView.tag = viewHolder
-//        } else {
-//            viewHolder = itemView.tag as ViewHolder?
-//        }
-//
-//        val registryNumberTextView = viewHolder?.registryNumberTextView
-//        val nameTextView = viewHolder?.nameTextView
-//        val typeTextView = viewHolder?.typeTextView
-//        val producerTextView = viewHolder?.producerTextView
-//        val dateTextView = viewHolder?.dateTextView
-//        val methodologyTextView = viewHolder?.methodologyTextView
-//        val coldTextView = viewHolder?.coldTextView
-//        val hotTextView = viewHolder?.hotTextView
-//
-//        val waterMeter = getItem(position) as WaterMeter
-//
-//        registryNumberTextView?.text = waterMeter.registryNumber
-//        nameTextView?.text = waterMeter.name
-//        typeTextView?.text = waterMeter.type
-//        producerTextView?.text = waterMeter.producer
-//        dateTextView?.text = formatDate(waterMeter)
-//        methodologyTextView?.text = waterMeter.methodology
-//        coldTextView?.text = "Хол. " + waterMeter.coldWater
-//        hotTextView?.text = "Гор. " + waterMeter.hotWater
-//        return itemView
-//    }
 
     //FIXME Перенести метод к запросу к бд
     private fun formatDate(waterMeter: WaterMeter): String? {
@@ -86,30 +46,18 @@ class WaterMeterListAdapter(
         return formattedDate
     }
 
-    fun setItems() {
+    fun setData() {
+        //FIXME Подумать над правильной логикой
         if (noFilterResults) waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
-        Log.d("notify, wM size: ", waterMeters.size.toString())
+        Log.d("wMList size", waterMeterList.size.toString())
     }
 
-//    fun updateData(waterMeterList: ArrayList<WaterMeter>) {
-//        this.waterMeterList = waterMeterList
-//        waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
-//        notifyDataSetChanged()
-//    }
+    fun updateList(newList: ArrayList<WaterMeter>) {
+        val diffResult = DiffUtil.calculateDiff(DiffUtilsCallback(resultList, newList))
+        diffResult.dispatchUpdatesTo(this)
+    }
 
     fun getList() = resultList
-//
-//    override fun getItem(position: Int): Any {
-//        return resultList[position]
-//    }
-//
-//    override fun getItemId(position: Int): Long {
-//        return position.toLong()
-//    }
-//
-//    override fun getCount(): Int {
-//        return resultList.size
-//    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val registryNumberTextView: TextView? = itemView.findViewById(R.id.registry_number)
@@ -122,9 +70,7 @@ class WaterMeterListAdapter(
         val hotTextView: TextView? = itemView.findViewById(R.id.hot)
     }
 
-    override fun getFilter(): Filter? {
-        return exampleFilter
-    }
+    override fun getFilter() = exampleFilter
 
     private val exampleFilter: Filter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
@@ -162,7 +108,7 @@ class WaterMeterListAdapter(
             resultList.clear()
             resultList.addAll(results.values as ArrayList<WaterMeter>)
             Log.d("con not empt, rL size: ", resultList.size.toString())
-            setItems()
+            setData()
             notifyDataSetChanged()
         }
     }

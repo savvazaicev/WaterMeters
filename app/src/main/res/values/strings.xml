@@ -35,4 +35,8 @@
     <string name="add">Добавить</string>
     <string name="exit">Выйти</string>
     <string name="requiredField">Обязательное поле</string>
+    <string name="add_photo"><u>Добавить Фото</u></string>
+    <string name="waterType">Вода</string>
+    <string name="certificateNumber">Номер свидетельства о поверке</string>
+    <string name="clear_selected_images">Очистить выбранные фото</string>
 </resources>

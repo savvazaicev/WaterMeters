@@ -1,7 +1,5 @@
 package com.company.watermeters.model
 
-import java.util.*
-
 class Client(
     //var id: Long?,
     var fullName: String?,
@@ -10,5 +8,8 @@ class Client(
     var number: String?,
     var date: String?,
     var endDate: String?,
+    var waterType: String?,
+    var certificateNumber: String?,
+    var imagesUUIDs: MutableList<String>,
     var email: String?
 )

@@ -8,8 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.AdapterView
-import android.widget.ListView
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -26,11 +24,12 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-
+//TODO Возможность добавления фото в форме
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Заменить все активности на фрагменты
-//OPTIMIZE Заменить listView на RecyclerView
 
+//FIXME Изменить цвет DateTimePicker'a
+//FIXME ВЫлетает из-за UpdateAll
 //FIXME Отдельный класс с онитемкликером заменить на обычный вызов, нет анимации клика
 //FIXME Данные не сохраняются локально, все время загружаются из интернета
 //TODO фрагмент загрузки счётчиков
@@ -42,6 +41,7 @@ import kotlinx.android.synthetic.main.content_main.*
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
 //OPTIMIZE Использовать ViewBinding
 //OPTIMIZE Попробовать фабричный метод
+//OPTIMIZE Заменить где нужно match_parent на 0dp, почитать про это
 class MainActivity : AppCompatActivity() {
 
     private var database: WaterMeterDatabase? = null
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
         myRef = db?.getReference("WaterMeters")
         toolBar = findViewById(R.id.toolbar)
-        populateListView()
+        populateRecyclerView()
 //        recyclerView?.onItemClickListener = AdapterView.OnItemClickListener { _, _,
 //                                                                              position, _ ->
 //            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
         searchView.setOnCloseListener {
-            listAdapter?.setItems()
+            listAdapter?.setData()
             listAdapter?.notifyDataSetChanged()
             selectedItemRegistryNumber = null
 //            refreshItem.isVisible = true
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun populateListView() {
+    private fun populateRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.list)
         recyclerView.setHasFixedSize(true)
         val layoutManager = LinearLayoutManager(this)
@@ -122,11 +122,10 @@ class MainActivity : AppCompatActivity() {
             selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
             startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
         }
-//        recyclerView.setHasFixedSize(true)
         Log.d("wM before retriv size: ", waterMeters.size.toString())
         waterMeters = RetrieveItemsAsyncTask(database).execute().get() as ArrayList<WaterMeter>
         Log.d("wM after retriv size: ", waterMeters.size.toString())
-        listAdapter?.setItems()
+        listAdapter?.setData()
         listAdapter?.notifyDataSetChanged()
         if (waterMeters.isEmpty()) updateListView()
     }
@@ -141,7 +140,7 @@ class MainActivity : AppCompatActivity() {
                     it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
                 }
                 Log.d("wM after upd size: ", waterMeters.size.toString())
-                listAdapter?.setItems()
+                listAdapter?.setData()
                 listAdapter?.notifyDataSetChanged()
 //                Log.d("wM before update size: ", waterMeters.size.toString())
                 UpdateAllAsyncTask(database, waterMeters).execute()
