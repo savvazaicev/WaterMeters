@@ -24,20 +24,20 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-//TODO Возможность добавления фото в форме
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Заменить все активности на фрагменты
 
 //FIXME Изменить цвет DateTimePicker'a
-//FIXME ВЫлетает из-за UpdateAll
+//FIXME Текст "Добавить фото" находится не по центру
+//FIXME На текст "Добавить фото" тяжело нажать, как и на иконку, увеличить область нажатия
 //FIXME Отдельный класс с онитемкликером заменить на обычный вызов, нет анимации клика
+//FIXME ВЫлетает из-за UpdateAll
 //FIXME Данные не сохраняются локально, все время загружаются из интернета
 //TODO фрагмент загрузки счётчиков
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
 //OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
-//OPTIMIZE Использовать DiffUtils для списка
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
 //OPTIMIZE Использовать ViewBinding
 //OPTIMIZE Попробовать фабричный метод

@@ -26,7 +26,7 @@
     <style name="Theme.MaterialTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue_dark</item>
-        <item name="colorAccent">@color/blue_light</item>
+        <item name="colorAccent">@color/blue</item>
     </style>
     
 <!--    <style name="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">-->
