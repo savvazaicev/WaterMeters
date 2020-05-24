@@ -1,5 +1,7 @@
 package com.company.watermeters
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +28,7 @@ class WaterMeterListAdapter(
     init {
         waterMeterList = waterMeterss
     }
+
     private var resultList = ArrayList<WaterMeter>()
     private var noFilterResults = true
 
@@ -68,6 +71,8 @@ class WaterMeterListAdapter(
         val methodologyTextView: TextView? = itemView.findViewById(R.id.methodology)
         val coldTextView: TextView? = itemView.findViewById(R.id.cold)
         val hotTextView: TextView? = itemView.findViewById(R.id.hot)
+
+
     }
 
     override fun getFilter() = exampleFilter
@@ -116,20 +121,30 @@ class WaterMeterListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.list_item, parent, false)
-        //здесь можно добавить OnClickListener
-        return ViewHolder(view)
+        val viewHolder = ViewHolder(view)
+        viewHolder.itemView.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                MainActivity.selectedItemRegistryNumber =
+                    resultList[viewHolder.adapterPosition].registryNumber
+                (parent.context as Activity).startActivityForResult(
+                    Intent(parent.context as Activity,
+                        ClientFormActivity::class.java), 111)
+            }
+        }
+        return viewHolder
     }
 
     override fun getItemCount() = resultList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val listItem = resultList[position]
-        holder.registryNumberTextView?.text =listItem.registryNumber
-        holder.nameTextView?.text =listItem.name
-        holder.typeTextView?.text =listItem.type
-        holder.producerTextView?.text =listItem.producer
+        val listItem = resultList[holder.adapterPosition]
+        holder.registryNumberTextView?.text = listItem.registryNumber
+        holder.nameTextView?.text = listItem.name
+        holder.typeTextView?.text = listItem.type
+        holder.producerTextView?.text = listItem.producer
         holder.dateTextView?.text = formatDate(listItem)
-        holder.methodologyTextView?.text =listItem.methodology
+        holder.methodologyTextView?.text = listItem.methodology
         holder.coldTextView?.text = "Хол. " + listItem.coldWater
         holder.hotTextView?.text = "Гор. " + listItem.hotWater
     }

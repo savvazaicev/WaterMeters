@@ -26,22 +26,25 @@ import kotlinx.android.synthetic.main.content_main.*
 
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Заменить все активности на фрагменты
+// - Вынести логику авторизации в отдельный класс, и вызывать ее когда нужно и где нужно
 
-//FIXME Изменить цвет DateTimePicker'a
-//FIXME Текст "Добавить фото" находится не по центру
-//FIXME На текст "Добавить фото" тяжело нажать, как и на иконку, увеличить область нажатия
+//TODO Firebase CrashList
+//TODO Возможность фотографировать при выборе фото
 //FIXME Отдельный класс с онитемкликером заменить на обычный вызов, нет анимации клика
-//FIXME ВЫлетает из-за UpdateAll
+//FIXME ВЫлетает из-за UpdateAll (не работает сохранение в бд)
 //FIXME Данные не сохраняются локально, все время загружаются из интернета
 //TODO фрагмент загрузки счётчиков
 //OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
+//FIXME Подумать над правильной логикой в ListAdapter'e
 //OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
 //OPTIMIZE Попросить кого-нибудь сделать CodeReview
 //OPTIMIZE Использовать ViewBinding
 //OPTIMIZE Попробовать фабричный метод
 //OPTIMIZE Заменить где нужно match_parent на 0dp, почитать про это
+//OPTIMIZE Описание на GitHub + скомпилированная версия
+//OPTIMIZE Использовать Google Play Private Channel для размещения приложения
 class MainActivity : AppCompatActivity() {
 
     private var database: WaterMeterDatabase? = null
@@ -111,17 +114,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun populateRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.list)
-        recyclerView.setHasFixedSize(true)
+//        recyclerView.setHasFixedSize(true)
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         listAdapter = WaterMeterListAdapter(waterMeters)
         recyclerView.adapter = listAdapter
         val dividerItemDecoration = DividerItemDecoration(recyclerView.context, layoutManager.orientation)
         recyclerView.addItemDecoration(dividerItemDecoration)
-        recyclerView.setOnItemClickListener { position ->
-            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
-            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
-        }
+//        recyclerView.setOnItemClickListener { position ->
+//            selectedItemRegistryNumber = listAdapter?.getList()?.get(position)?.registryNumber
+//            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
+//        }
         Log.d("wM before retriv size: ", waterMeters.size.toString())
         waterMeters = RetrieveItemsAsyncTask(database).execute().get() as ArrayList<WaterMeter>
         Log.d("wM after retriv size: ", waterMeters.size.toString())
@@ -175,17 +178,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
         }
-    }
-
-    private inline fun RecyclerView.setOnItemClickListener(crossinline listener: (position: Int) -> Unit) {
-        addOnItemTouchListener(
-            RecyclerItemClickListener(this,
-                object : RecyclerItemClickListener.OnItemClickListener {
-                    override fun onItemClick(view: View, position: Int) {
-                        listener(position)
-                    }
-                })
-        )
     }
 
     private class RetrieveItemsAsyncTask(private val database: WaterMeterDatabase?) :
