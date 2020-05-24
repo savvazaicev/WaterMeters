@@ -8,6 +8,14 @@
     android:theme="@style/Theme.MaterialTheme"
     tools:context=".ClientFormActivity">
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:visibility="invisible"
+        android:progress="0"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        style="?android:progressBarStyleHorizontal"/>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,7 +23,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="21dp"
         android:layout_marginEnd="25dp"
         android:layout_marginRight="16dp"
         android:focusableInTouchMode="false"

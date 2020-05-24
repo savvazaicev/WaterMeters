@@ -33,6 +33,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
     private lateinit var textView: TextView
     private var storageRef: StorageReference? = null
     private val pickImageRequest = 112
+    private lateinit var progressBar: ProgressBar
 
     //    private var filePath: Uri? = null
     private var allPath = ArrayList<Uri>()
@@ -112,11 +113,12 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
         myRef = db?.getReference("Clients")
         myRef?.push()?.setValue(client)
             ?.addOnCompleteListener {
-                val intent = Intent()
-                //OPTIMIZE лишние строки
-                intent.putExtra("customerIsAdded", true)
-                setResult(Activity.RESULT_OK, intent)
-                finish()
+                if (allPath.isEmpty()){
+                    val intent = Intent()
+                    intent.putExtra("customerIsAdded", true)
+                    setResult(Activity.RESULT_OK, intent)
+                    finish()
+                }
             }
             ?.addOnFailureListener {
                 Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
@@ -152,6 +154,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
     private fun uploadImage() {
         if (allPath.isNotEmpty()) {
 //        val file: Uri = Uri.fromFile(File("path/to/images/rivers.jpg"))
+            progressBar = findViewById(R.id.progress_bar)
             for (filePath in allPath) {
                 val randomUUID = UUID.randomUUID().toString()
                 imageUUIDs.add(randomUUID)
@@ -167,8 +170,18 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                         // ...
                     }
                     .addOnProgressListener {
-                        var progress = (100.0 * it.bytesTransferred / it.totalByteCount)
-                        var uploaded = "Uploaded ${progress.toInt()}%"
+                        progressBar.visibility = View.VISIBLE
+                        progressBar.run {
+                            val progress = (100.0 * it.bytesTransferred / it.totalByteCount)
+                            progressBar.progress = progress.toInt()
+                            if (progress.toInt() == 100) {
+                                val intent = Intent()
+                                intent.putExtra("customerIsAdded", true)
+                                setResult(Activity.RESULT_OK, intent)
+                                finish()
+                            }
+                        }
+//                        var uploaded = "Uploaded ${progress.toInt()}%"
                     }
             }
         }
