@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
@@ -23,12 +24,14 @@ import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
+
 //FIXME Не показывать экран регистрации, если аутентификация успешна
 // - Заменить все активности на фрагменты
 // - Вынести логику авторизации в отдельный класс, и вызывать ее когда нужно и где нужно
 
 //TODO Firebase CrashList
 //TODO Возможность фотографировать при выборе фото
+
 //FIXME ВЫлетает из-за UpdateAll (не работает сохранение в бд)
 //FIXME Данные не сохраняются локально, все время загружаются из интернета
 //OPTIMIZE BackUp_Descriptor in Manifest
@@ -43,6 +46,7 @@ import kotlinx.android.synthetic.main.content_main.*
 //OPTIMIZE Заменить где нужно match_parent на 0dp, почитать про это
 //OPTIMIZE Описание на GitHub + скомпилированная версия
 //OPTIMIZE Использовать Google Play Private Channel для размещения приложения
+//OPTIMIZE Анимированный ProgressBar
 class MainActivity : AppCompatActivity() {
 
     private var database: WaterMeterDatabase? = null
@@ -71,6 +75,8 @@ class MainActivity : AppCompatActivity() {
         toolBar = findViewById(R.id.toolbar)
         populateRecyclerView()
         button_first.setOnClickListener {
+//            FirebaseCrashlytics.getInstance().log("Higgs-Boson detected! Bailing out")
+//            FirebaseCrashlytics.getInstance().setCustomKey("int_key", 50)
             startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
         }
         root = findViewById(R.id.root_element)

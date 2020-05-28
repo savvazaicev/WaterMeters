@@ -42,35 +42,6 @@
           ]
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:513333184975:android:c2b7741b2a2f588fd0aaba",
-        "android_client_info": {
-          "package_name": "com.example.watermeters"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "513333184975-4v51ipnjdpdgpmod4l9a9h4oifpuaaoj.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDCcQAttl0NTON6jygXkQEhOXX0-4NaQSc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "513333184975-4v51ipnjdpdgpmod4l9a9h4oifpuaaoj.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
     }
   ],
   "configuration_version": "1"

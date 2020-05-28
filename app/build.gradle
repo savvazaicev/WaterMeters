@@ -3,17 +3,19 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: "kotlin-kapt"
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.example.watermeters"
+        applicationId "com.company.watermeters"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
-        versionName "1.5.1"
+        versionName "1.5.2"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,7 +49,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0-alpha04'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0-alpha04'
-    implementation 'com.google.firebase:firebase-analytics:17.3.0'
+    implementation 'com.google.firebase:firebase-analytics:17.4.2'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
     implementation 'com.google.firebase:firebase-auth:19.3.0'
     implementation 'com.google.firebase:firebase-database:19.2.1'
@@ -55,6 +57,7 @@ dependencies {
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
     implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
     implementation 'android.arch.persistence.room:runtime:1.1.1'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
     kapt "android.arch.persistence.room:compiler:1.1.1"
 
