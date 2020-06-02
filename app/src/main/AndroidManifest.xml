@@ -4,7 +4,10 @@
     package="com.company.watermeters">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+<!--    <uses-feature android:name="android.hardware.camera.any" />-->
 
     <application
         android:allowBackup="true"
@@ -18,12 +21,17 @@
         tools:targetApi="m">
         <activity
             android:name=".ClientFormActivity"
-            android:parentActivityName=".MainActivity"
             android:label="@string/new_client"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.MaterialTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value=".MainActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".AuthActivity"

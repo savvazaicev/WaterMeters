@@ -2,11 +2,15 @@ package com.company.watermeters
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -21,8 +25,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.content_client_form.*
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
@@ -38,6 +44,9 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
     //    private var filePath: Uri? = null
     private var allPath = ArrayList<Uri>()
     private var imageUUIDs = ArrayList<String>()
+    private var imageURLs = ArrayList<String>()
+    private var outputFileUri: Uri? = null
+    private lateinit var photo: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +75,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
             clearButton.visibility = View.INVISIBLE
         }
         storageRef = FirebaseStorage.getInstance().reference
-        addPhoto.setOnClickListener { chooseImage() }
+        addPhoto.setOnClickListener { chooseImageIntent() }
     }
 
     private fun saveClient() {
@@ -97,6 +106,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
             number == "" || date == "" || endDate == "" || waterType == "" || certificateNumber == ""
         ) return
         save_button.isEnabled = false
+        //FIXME imageURLs is null, multithreading
         val client = Client(
             fullName,
             address,
@@ -106,14 +116,14 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
             endDate,
             waterType,
             certificateNumber,
-            imageUUIDs,
+            imageURLs,
             email
         )
         db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
         myRef = db?.getReference("Clients")
         myRef?.push()?.setValue(client)
             ?.addOnCompleteListener {
-                if (allPath.isEmpty()){
+                if (allPath.isEmpty()) {
                     val intent = Intent()
                     intent.putExtra("customerIsAdded", true)
                     setResult(Activity.RESULT_OK, intent)
@@ -159,11 +169,11 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                 val randomUUID = UUID.randomUUID().toString()
                 imageUUIDs.add(randomUUID)
                 val riversRef = storageRef!!.child("images/$randomUUID")
-
+                Log.d("metadataFr", riversRef.metadata.toString())
                 riversRef.putFile(filePath)
                     .addOnSuccessListener { taskSnapshot -> // Get a URL to the uploaded content
                         val downloadUrl: Uri? = taskSnapshot.uploadSessionUri
-//                        imageURLs.add(downloadUrl.toString())
+                        imageURLs.add(downloadUrl.toString())
                     }
                     .addOnFailureListener {
                         // Handle unsuccessful uploads
@@ -181,28 +191,47 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                                 finish()
                             }
                         }
-//                        var uploaded = "Uploaded ${progress.toInt()}%"
                     }
             }
         }
     }
 
-    private fun chooseImage() {
-        //Выбирается несколько фото, их пути сохраняются
-        //Можно удалить выбранные фото
-        //При отправке формы фото загружаются, показывается прогресс загрузки фото
-//        val intent = Intent()
-//        intent.type = "image/*"
+    private fun chooseImageIntent() {
+        val root =
+            File(getExternalFilesDir(null).toString() + File.separator.toString() + "images" + File.separator)
+        root.mkdirs()
+        val randomUUID = UUID.randomUUID().toString()
+        photo = File(root, randomUUID)
+        outputFileUri = Uri.fromFile(photo)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-//            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "image/*"
-            startActivityForResult(intent, pickImageRequest);
-//            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-//            intent.action = Intent.ACTION_PICK
+            val cameraIntents = ArrayList<Intent>()
+            val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val packageManager: PackageManager = packageManager
+            val listCam: List<ResolveInfo> = packageManager.queryIntentActivities(captureIntent, 0)
+            for (res in listCam) {
+                val packageName: String = res.activityInfo.packageName
+                val intent = Intent(captureIntent)
+                intent.component = ComponentName(
+                    res.activityInfo.packageName,
+                    res.activityInfo.name
+                )
+                intent.setPackage(packageName)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri)
+                intent.putExtra("isCamera", true)
+                cameraIntents.add(intent)
+            }
+
+            val galleryIntent =
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            galleryIntent.type = "image/*"
+
+            val chooser = Intent.createChooser(galleryIntent, "Выберите приложение")
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toTypedArray())
+            startActivityForResult(chooser, pickImageRequest);
         } else {
-            //TODO Action для версии ниже кит кат
+            //TODO Action для версии ниже кит кат (либо get_content, либо без allow_multiple)
             var intent = Intent()
             intent.type = "image/*"
 //            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -212,73 +241,24 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                 , pickImageRequest
             )
         }
-//        startActivityForResult(Intent.createChooser(intent, "Select Picture"), pickImageRequest)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == pickImageRequest && resultCode == Activity.RESULT_OK
-            && data != null
-        ) {
-//            allPath = ImageCho
-//            filePath = data.data
-            val count = data.clipData!!.itemCount
-            addPhoto.text = "Добавлено $count фото"
-            clearButton.visibility = View.VISIBLE
-//            try {
-//                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePAth)
-////                imageView.setImageBitmap(bitmap)
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            }
-            if (data.clipData != null) {
+        addPhoto.text = "Добавлено 1 фото"
+        clearButton.visibility = View.VISIBLE
+        if (resultCode == RESULT_OK && requestCode == pickImageRequest) {
+            if (photo.exists()) {
+                allPath.add(outputFileUri!!)
+            } else if (data?.clipData != null) {
+                val count = data.clipData!!.itemCount
+                addPhoto.text = "Добавлено $count фото"
+                clearButton.visibility = View.VISIBLE
                 for (i in 0 until count) {
                     val imageUri: Uri = data.clipData!!.getItemAt(i).uri
-//                    getPathFromURI(imageUri)
                     allPath.add(imageUri)
                 }
-            } else if (data.data != null) {
-                val imagePath: String = data.data!!.path!!
-                Log.e("imagePath", imagePath);
             }
         }
     }
-
-//    private fun getPathFromURI(uri: Uri) {
-//        var path: String = uri.path!! // uri = any content Uri
-//
-//        val databaseUri: Uri
-//        val selection: String?
-//        val selectionArgs: Array<String>?
-//        if (path.contains("/document/image:")) { // files selected from "Documents"
-//            databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-//            selection = "_id=?"
-//            selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1])
-//        } else { // files selected from all other sources, especially on Samsung devices
-//            databaseUri = uri
-//            selection = null
-//            selectionArgs = null
-//        }
-//        try {
-//            val projection = arrayOf(
-//                MediaStore.Images.Media.DATA,
-//                MediaStore.Images.Media._ID,
-//                MediaStore.Images.Media.ORIENTATION,
-//                MediaStore.Images.Media.DATE_TAKEN
-//            ) // some example data you can query
-//            val cursor = contentResolver.query(
-//                databaseUri,
-//                projection, selection, selectionArgs, null
-//            )
-//            if (cursor.moveToFirst()) {
-//                val columnIndex = cursor.getColumnIndex(projection[0])
-//                imagePath = cursor.getString(columnIndex)
-//                // Log.e("path", imagePath);
-//                imagesPathList.add(imagePath)
-//            }
-//            cursor.close()
-//        } catch (e: Exception) {
-//            Log.e(TAG, e.message, e)
-//        }
-//    }
 }

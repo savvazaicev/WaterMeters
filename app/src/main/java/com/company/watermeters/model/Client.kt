@@ -10,6 +10,6 @@ class Client(
     var endDate: String?,
     var waterType: String?,
     var certificateNumber: String?,
-    var imagesUUIDs: MutableList<String>,
+    var imagesURLs: MutableList<String>,
     var email: String?
 )

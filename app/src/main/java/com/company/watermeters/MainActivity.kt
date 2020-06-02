@@ -29,24 +29,25 @@ import kotlinx.android.synthetic.main.content_main.*
 // - Заменить все активности на фрагменты
 // - Вынести логику авторизации в отдельный класс, и вызывать ее когда нужно и где нужно
 
-//TODO Firebase CrashList
 //TODO Возможность фотографировать при выборе фото
+//TODO Изменить сохранение UUID на ссылки на фото в storage
 
 //FIXME ВЫлетает из-за UpdateAll (не работает сохранение в бд)
 //FIXME Данные не сохраняются локально, все время загружаются из интернета
-//OPTIMIZE BackUp_Descriptor in Manifest
 // - узнать что это, удалить или сделать
-//TODO Изменить цвет Snackbar'a
 //FIXME Подумать над правильной логикой в ListAdapter'e
 //OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
+
+//OPTIMIZE BackUp_Descriptor in Manifest
+//TODO Изменить цвет Snackbar'a
 //OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
-//OPTIMIZE Попросить кого-нибудь сделать CodeReview
 //OPTIMIZE Использовать ViewBinding
 //OPTIMIZE Попробовать фабричный метод
 //OPTIMIZE Заменить где нужно match_parent на 0dp, почитать про это
-//OPTIMIZE Описание на GitHub + скомпилированная версия
 //OPTIMIZE Использовать Google Play Private Channel для размещения приложения
+//OPTIMIZE Описание на GitHub + скомпилированная версия
 //OPTIMIZE Анимированный ProgressBar
+//OPTIMIZE Попросить кого-нибудь сделать CodeReview
 class MainActivity : AppCompatActivity() {
 
     private var database: WaterMeterDatabase? = null
