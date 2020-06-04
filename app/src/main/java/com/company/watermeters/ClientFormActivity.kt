@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -25,10 +24,16 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.content_client_form.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
@@ -44,7 +49,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
     //    private var filePath: Uri? = null
     private var allPath = ArrayList<Uri>()
     private var imageUUIDs = ArrayList<String>()
-    private var imageURLs = ArrayList<String>()
+    private var imageURLs = Collections.synchronizedList(ArrayList<String>())
     private var outputFileUri: Uri? = null
     private lateinit var photo: File
 
@@ -80,60 +85,69 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
 
     private fun saveClient() {
         //OPTIMIZE
-        uploadImage()
+
+//            imageURLs = withContext(Dispatchers.Default) { uploadImage() }
         val fullName = findViewById<TextInputEditText>(R.id.full_name)?.text?.toString()
         val address = findViewById<TextInputEditText>(R.id.address)?.text?.toString()
-        val registryNumber = findViewById<TextInputEditText>(R.id.registry_number)?.text?.toString()
+        val registryNumber =
+            findViewById<TextInputEditText>(R.id.registry_number)?.text?.toString()
         val number = findViewById<TextInputEditText>(R.id.number)?.text?.toString()
         val date = findViewById<TextInputEditText>(R.id.date)?.text?.toString()
         val endDate = findViewById<TextInputEditText>(R.id.end_date)?.text?.toString()
-        val waterType = findViewById<AutoCompleteTextView>(R.id.dropdown_text)?.text?.toString()
+        val waterType =
+            findViewById<AutoCompleteTextView>(R.id.dropdown_text)?.text?.toString()
         val certificateNumber =
             findViewById<TextInputEditText>(R.id.certificateNumber)?.text?.toString()
         val sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
         val email = sharedPref?.getString("email", null)
-        fullNameLayout.error = if (fullName == "") getString(R.string.requiredField) else null
-        addressLayout.error = if (address == "") getString(R.string.requiredField) else null
-        registryNumberLayout.error =
-            if (registryNumber == "") getString(R.string.requiredField) else null
-        numberLayout.error = if (number == "") getString(R.string.requiredField) else null
-        dateLayout.error = if (date == "") getString(R.string.requiredField) else null
-        endDateLayout.error = if (endDate == "") getString(R.string.requiredField) else null
-        waterTypeLayout.error = if (waterType == "") getString(R.string.requiredField) else null
-        certificateNumberLayout.error =
-            if (certificateNumber == "") getString(R.string.requiredField) else null
-        if (fullName == "" || address == "" || registryNumber == "" ||
-            number == "" || date == "" || endDate == "" || waterType == "" || certificateNumber == ""
-        ) return
+//        fullNameLayout.error = if (fullName == "") getString(R.string.requiredField) else null
+//        addressLayout.error = if (address == "") getString(R.string.requiredField) else null
+//        registryNumberLayout.error =
+//            if (registryNumber == "") getString(R.string.requiredField) else null
+//        numberLayout.error = if (number == "") getString(R.string.requiredField) else null
+//        dateLayout.error = if (date == "") getString(R.string.requiredField) else null
+//        endDateLayout.error = if (endDate == "") getString(R.string.requiredField) else null
+//        waterTypeLayout.error = if (waterType == "") getString(R.string.requiredField) else null
+//        certificateNumberLayout.error =
+//            if (certificateNumber == "") getString(R.string.requiredField) else null
+//        if (fullName == "" || address == "" || registryNumber == "" ||
+//            number == "" || date == "" || endDate == "" || waterType == "" || certificateNumber == ""
+//        ) return
         save_button.isEnabled = false
         //FIXME imageURLs is null, multithreading
-        val client = Client(
-            fullName,
-            address,
-            registryNumber,
-            number,
-            date,
-            endDate,
-            waterType,
-            certificateNumber,
-            imageURLs,
-            email
-        )
-        db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
-        myRef = db?.getReference("Clients")
-        myRef?.push()?.setValue(client)
-            ?.addOnCompleteListener {
-                if (allPath.isEmpty()) {
-                    val intent = Intent()
-                    intent.putExtra("customerIsAdded", true)
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
+//            uploadImageJob.await()
+        var client: Client
+        GlobalScope.launch {
+            uploadImages()
+            client = Client(
+                fullName,
+                address,
+                registryNumber,
+                number,
+                date,
+                endDate,
+                waterType,
+                certificateNumber,
+                imageURLs,
+                email
+            )
+            db = FirebaseDatabase.getInstance("https://clients-a1b6a.firebaseio.com/")
+            myRef = db?.getReference("Clients")
+            myRef?.push()?.setValue(client)
+                ?.addOnCompleteListener {
+                    if (allPath.isEmpty()) {
+                        val intent = Intent()
+                        intent.putExtra("customerIsAdded", true)
+                        setResult(Activity.RESULT_OK, intent)
+                        finish()
+                    }
                 }
-            }
-            ?.addOnFailureListener {
-                Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
-                save_button.isEnabled = true
-            }
+                ?.addOnFailureListener {
+                    Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT)
+                        .show()
+                    save_button.isEnabled = true
+                }
+        }
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
@@ -161,37 +175,46 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
         overridePendingTransition(0, R.anim.left_to_right)
     }
 
-    private fun uploadImage() {
+    private suspend fun uploadImages() {
         if (allPath.isNotEmpty()) {
-//        val file: Uri = Uri.fromFile(File("path/to/images/rivers.jpg"))
-            progressBar = findViewById(R.id.progress_bar)
-            for (filePath in allPath) {
-                val randomUUID = UUID.randomUUID().toString()
-                imageUUIDs.add(randomUUID)
-                val riversRef = storageRef!!.child("images/$randomUUID")
-                Log.d("metadataFr", riversRef.metadata.toString())
-                riversRef.putFile(filePath)
-                    .addOnSuccessListener { taskSnapshot -> // Get a URL to the uploaded content
-                        val downloadUrl: Uri? = taskSnapshot.uploadSessionUri
-                        imageURLs.add(downloadUrl.toString())
-                    }
-                    .addOnFailureListener {
-                        // Handle unsuccessful uploads
-                        // ...
-                    }
-                    .addOnProgressListener {
-                        progressBar.visibility = View.VISIBLE
-                        progressBar.run {
-                            val progress = (100.0 * it.bytesTransferred / it.totalByteCount)
-                            progressBar.progress = progress.toInt()
-                            if (progress.toInt() == 100) {
-                                val intent = Intent()
-                                intent.putExtra("customerIsAdded", true)
-                                setResult(Activity.RESULT_OK, intent)
-                                finish()
+            return suspendCoroutine { continuation ->
+                progressBar = findViewById(R.id.progress_bar)
+                for (filePath in allPath) {
+                    val randomUUID = UUID.randomUUID().toString()
+                    imageUUIDs.add(randomUUID)
+                    val imageRef = storageRef!!.child("images/$randomUUID")
+                    imageRef.putFile(filePath)
+                        .addOnSuccessListener {
+                            imageRef.downloadUrl.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val downloadUrl: Uri? = task.result
+                                    imageURLs.add(downloadUrl.toString())
+                                    if (filePath == allPath.last()) {
+                                        continuation.resume(Unit)
+                                    }
+                                }
                             }
                         }
-                    }
+                        .addOnFailureListener {
+                            continuation.resume(Unit)
+                            // Handle unsuccessful uploads
+                            // ...
+                        }
+                        .addOnProgressListener {
+                            //FIXME: при нескольких изображениях прогресс идёт неправильно
+                            progressBar.visibility = View.VISIBLE
+                            progressBar.run {
+                                val progress = (100.0 * it.bytesTransferred / it.totalByteCount)
+                                progressBar.progress = progress.toInt()
+                                if (progress.toInt() == 100) {
+                                    val intent = Intent()
+                                    intent.putExtra("customerIsAdded", true)
+                                    setResult(Activity.RESULT_OK, intent)
+                                    finish()
+                                }
+                            }
+                        }
+                }
             }
         }
     }
@@ -232,7 +255,7 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
             startActivityForResult(chooser, pickImageRequest);
         } else {
             //TODO Action для версии ниже кит кат (либо get_content, либо без allow_multiple)
-            var intent = Intent()
+            val intent = Intent()
             intent.type = "image/*"
 //            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             intent.action = Intent.ACTION_GET_CONTENT
