@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -251,11 +250,18 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                     continuation.resume(Unit)
                 }
                 .addOnProgressListener {
-                    //FIXME: при нескольких изображениях прогресс идёт неправильно
                     progressBar.visibility = View.VISIBLE
                     progressBar.run {
-                        val progress = (100.0 * it.bytesTransferred / it.totalByteCount)
-                        progressBar.progress = progress.toInt()
+                        val alreadyDownloadedPart = 100.0 * imageURLs.size / allPath.size
+                        val currentPartCoefficient = 100.0 * 1 / allPath.size
+                        val progress =
+                            (alreadyDownloadedPart + currentPartCoefficient * it.bytesTransferred / it.totalByteCount)
+//                        ObjectAnimator.ofInt(progressBar, "progress", 50, progress.toInt()).start()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            progressBar.setProgress(progress.toInt(), true)
+                        } else {
+                            progressBar.progress = progress.toInt()
+                        }
                     }
                 }
         }
