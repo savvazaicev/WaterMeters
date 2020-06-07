@@ -10,7 +10,7 @@ interface WaterMeterDAO {
     @Insert
     fun addItem(item: WaterMeter): Long
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateAll(items: ArrayList<WaterMeter>)
+    fun updateAll(items: MutableCollection<WaterMeter>)
     @Update
     fun updateItem(item: WaterMeter)
     @Delete

@@ -17,13 +17,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-//OPTIMIZE Не нужно передавать context в адаптер, его можно получить из View
-//FIXME конструктор не передаются данные
+//FIXME неправильная логика в адаптере, в конструктор не передаются данные
 class WaterMeterListAdapter(
-    waterMeterss: ArrayList<WaterMeter>
+    waterMeterss: MutableCollection<WaterMeter>
 ) : RecyclerView.Adapter<WaterMeterListAdapter.ViewHolder>(), Filterable {
 
-    private var waterMeterList: ArrayList<WaterMeter>
+    private var waterMeterList: MutableCollection<WaterMeter>
 
     init {
         waterMeterList = waterMeterss
@@ -32,21 +31,34 @@ class WaterMeterListAdapter(
     private var resultList = ArrayList<WaterMeter>()
     private var noFilterResults = true
 
-    //FIXME Перенести метод к запросу к бд
-    private fun formatDate(waterMeter: WaterMeter): String? {
-        var formattedDate: String? = waterMeter.date
-        if (formattedDate != null) {
-            try {
-                val formattedString = SimpleDateFormat("d/M/yy", Locale("ru")).parse(formattedDate)
-                if (formattedString != null) {
-                    formattedDate =
-                        SimpleDateFormat("dd.MM.yyyy", Locale("ru")).format(formattedString)
-                }
-            } finally {
-                return formattedDate
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.list_item, parent, false)
+
+        val viewHolder = ViewHolder(view)
+        viewHolder.itemView.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                MainActivity.selectedItemRegistryNumber =
+                    resultList[viewHolder.adapterPosition].registryNumber
+                (parent.context as Activity).startActivityForResult(
+                    Intent(parent.context as Activity,
+                        ClientFormActivity::class.java), 111)
             }
         }
-        return formattedDate
+        return viewHolder
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val listItem = resultList[holder.adapterPosition]
+        holder.registryNumberTextView?.text = listItem.registryNumber
+        holder.nameTextView?.text = listItem.name
+        holder.typeTextView?.text = listItem.type
+        holder.producerTextView?.text = listItem.producer
+        holder.dateTextView?.text = formatDate(listItem)
+        holder.methodologyTextView?.text = listItem.methodology
+        holder.coldTextView?.text = "Хол. " + listItem.coldWater
+        holder.hotTextView?.text = "Гор. " + listItem.hotWater
     }
 
     fun setData() {
@@ -62,6 +74,10 @@ class WaterMeterListAdapter(
 
     fun getList() = resultList
 
+    override fun getItemCount() = resultList.size
+
+    override fun getFilter() = filter
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val registryNumberTextView: TextView? = itemView.findViewById(R.id.registry_number)
         val nameTextView: TextView? = itemView.findViewById(R.id.name)
@@ -71,13 +87,9 @@ class WaterMeterListAdapter(
         val methodologyTextView: TextView? = itemView.findViewById(R.id.methodology)
         val coldTextView: TextView? = itemView.findViewById(R.id.cold)
         val hotTextView: TextView? = itemView.findViewById(R.id.hot)
-
-
     }
 
-    override fun getFilter() = exampleFilter
-
-    private val exampleFilter: Filter = object : Filter() {
+    private val filter = object : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
             val filteredList: MutableList<WaterMeter> = ArrayList()
             if (constraint == null || constraint.isEmpty()) {
@@ -118,34 +130,20 @@ class WaterMeterListAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.list_item, parent, false)
-        val viewHolder = ViewHolder(view)
-        viewHolder.itemView.setOnClickListener {
-            val position = viewHolder.adapterPosition
-            if (position != RecyclerView.NO_POSITION) {
-                MainActivity.selectedItemRegistryNumber =
-                    resultList[viewHolder.adapterPosition].registryNumber
-                (parent.context as Activity).startActivityForResult(
-                    Intent(parent.context as Activity,
-                        ClientFormActivity::class.java), 111)
+    //FIXME Перенести метод к запросу к бд
+    private fun formatDate(waterMeter: WaterMeter): String? {
+        var formattedDate: String? = waterMeter.date
+        if (formattedDate != null) {
+            try {
+                val formattedString = SimpleDateFormat("d/M/yy", Locale("ru")).parse(formattedDate)
+                if (formattedString != null) {
+                    formattedDate =
+                        SimpleDateFormat("dd.MM.yyyy", Locale("ru")).format(formattedString)
+                }
+            } finally {
+                return formattedDate
             }
         }
-        return viewHolder
-    }
-
-    override fun getItemCount() = resultList.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val listItem = resultList[holder.adapterPosition]
-        holder.registryNumberTextView?.text = listItem.registryNumber
-        holder.nameTextView?.text = listItem.name
-        holder.typeTextView?.text = listItem.type
-        holder.producerTextView?.text = listItem.producer
-        holder.dateTextView?.text = formatDate(listItem)
-        holder.methodologyTextView?.text = listItem.methodology
-        holder.coldTextView?.text = "Хол. " + listItem.coldWater
-        holder.hotTextView?.text = "Гор. " + listItem.hotWater
+        return formattedDate
     }
 }

@@ -1,17 +1,18 @@
 package com.company.watermeters
 
+import android.Manifest
 import android.content.Intent
-import android.os.AsyncTask
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,76 +24,52 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
+class MainActivity : AppCompatActivity(), CoroutineScope {
 
-//FIXME Не показывать экран регистрации, если аутентификация успешна
-// - Заменить все активности на фрагменты
-// - Вынести логику авторизации в отдельный класс, и вызывать ее когда нужно и где нужно
-
-//TODO Изменить сохранение UUID на ссылки на фото в storage
-// - после загрузки изображений получать из них как-нибудь токен доступа, генерировать ссылку и сохранять её в бд
-
-//FIXME ВЫлетает из-за UpdateAll (не работает сохранение в бд)
-//FIXME Данные не сохраняются локально, все время загружаются из интернета
-// - узнать что это, удалить или сделать
-//FIXME Подумать над правильной логикой в ListAdapter'e
-//OPTIMIZE Перенести все запросы к бд и Firebase бд и Авторизацию из главного (UI) потока в побочный
-
-//OPTIMIZE BackUp_Descriptor in Manifest
-//TODO Изменить цвет Snackbar'a
-//TODO Заменить AsyncTask на Coroutines
-//OPTIMIZE Почитать по сохраненной в вк ссылке про SOLID и остальное, затем внедрить
-//OPTIMIZE Использовать ViewBinding
-//OPTIMIZE Попробовать фабричный метод
-//OPTIMIZE Заменить где нужно match_parent на 0dp, почитать про это
-//OPTIMIZE Использовать Google Play Private Channel для размещения приложения
-//OPTIMIZE Описание на GitHub + скомпилированная версия
-//OPTIMIZE Анимированный ProgressBar
-//OPTIMIZE Попросить кого-нибудь сделать CodeReview
-class MainActivity : AppCompatActivity() {
+    companion object {
+        //OPTIMIZE Передать в интенте в bundle (размер bundle ограничен)
+        var selectedItemRegistryNumber: String? = null
+        var waterMeters: MutableCollection<WaterMeter> = ArrayList()
+        private const val ADD_CLIENT_REQUEST = 111
+        private const val STORAGE_PERMISSION_REQUEST = 211
+    }
 
     private var database: WaterMeterDatabase? = null
     private var db: FirebaseDatabase? = null
-    private var myRef: DatabaseReference? = null
-    private lateinit var root: CoordinatorLayout
+    private var ref: DatabaseReference? = null
+    private var listAdapter: WaterMeterListAdapter? = null
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
-    companion object {
-        //OPTIMIZE Передать в интенте
-        var selectedItemRegistryNumber: String? = null
-        var toolBar: Toolbar? = null
-        var waterMeters = ArrayList<WaterMeter>()
-        var listAdapter: WaterMeterListAdapter? = null
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        database = Room.databaseBuilder(
-            applicationContext, WaterMeterDatabase::class.java,
-            DATABASE_NAME
-        ).build()
-        db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
-        myRef = db?.getReference("WaterMeters")
-        toolBar = findViewById(R.id.toolbar)
-        populateRecyclerView()
+        setFirebaseDatabase()
+        setRecyclerView()
+
         button_first.setOnClickListener {
-//            FirebaseCrashlytics.getInstance().log("Higgs-Boson detected! Bailing out")
-//            FirebaseCrashlytics.getInstance().setCustomKey("int_key", 50)
-            startActivityForResult(Intent(this, ClientFormActivity::class.java), 111)
+            val intent = Intent(this, ClientFormActivity::class.java)
+            startActivityForResult(intent, ADD_CLIENT_REQUEST)
         }
-        root = findViewById(R.id.root_element)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
+
         val searchItem = menu.findItem(R.id.search_item)
+        val exitItem = menu.findItem(R.id.exit_item)
         val searchView = searchItem.actionView as SearchView
-//        val refreshItem = menu.findItem(R.id.refresh_item)
         searchView.imeOptions = EditorInfo.IME_ACTION_DONE
-//        searchView.setOnSearchClickListener {
-//            refreshItem.isVisible = false
-//        }
+
+        searchView.setOnSearchClickListener {
+            exitItem.isVisible = false
+        }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -107,23 +84,80 @@ class MainActivity : AppCompatActivity() {
             listAdapter?.setData()
             listAdapter?.notifyDataSetChanged()
             selectedItemRegistryNumber = null
-//            refreshItem.isVisible = true
+            exitItem.isVisible = true
             false
         }
         return true
     }
 
-    private fun populateRecyclerView() {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ADD_CLIENT_REQUEST && resultCode == RESULT_OK && data != null) {
+            val root = findViewById<CoordinatorLayout>(R.id.root_element)
+            val customerIsAdded: Boolean = data.getBooleanExtra("customerIsAdded", false)
+            if (customerIsAdded) {
+                Snackbar.make(root, getString(R.string.clientAdded), Snackbar.LENGTH_SHORT).show()
+            } else {
+                Snackbar.make(root, getString(R.string.clientNotAdded), Snackbar.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (R.id.exit_item == item.itemId) {
+            val intent = Intent(this, AuthActivity::class.java)
+            intent.putExtra("actionExit", true)
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == STORAGE_PERMISSION_REQUEST && grantResults.isNotEmpty()){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("permissionGranted", "true")
+                //TODO: onRequestPermissionsResult
+            }
+        } else {
+            Log.d("permissionGranted", "false")
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancelChildren()
+    }
+
+    private fun setFirebaseDatabase() {
+        database = Room.databaseBuilder(
+            applicationContext, WaterMeterDatabase::class.java,
+            DATABASE_NAME
+        ).build()
+        db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
+        ref = db?.getReference("WaterMeters")
+    }
+
+    private fun setRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.list)
+
         recyclerView.setHasFixedSize(true)
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         listAdapter = WaterMeterListAdapter(waterMeters)
         recyclerView.adapter = listAdapter
-        val dividerItemDecoration = DividerItemDecoration(recyclerView.context, layoutManager.orientation)
+        val dividerItemDecoration =
+            DividerItemDecoration(recyclerView.context, layoutManager.orientation)
         recyclerView.addItemDecoration(dividerItemDecoration)
+
         Log.d("wM before retriv size: ", waterMeters.size.toString())
-        waterMeters = RetrieveItemsAsyncTask(database).execute().get() as ArrayList<WaterMeter>
+        launch {
+            waterMeters = retrieveItems(database) as ArrayList<WaterMeter>
+        }
         Log.d("wM after retriv size: ", waterMeters.size.toString())
         listAdapter?.setData()
         listAdapter?.notifyDataSetChanged()
@@ -131,92 +165,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateListView() {
-        myRef?.addValueEventListener(object : ValueEventListener {
+        ref?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 waterMeters.clear()
                 Log.d("wM after clear size: ", waterMeters.size.toString())
+
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
                 dataSnapshot.children.forEach {
                     it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
                 }
                 Log.d("wM after upd size: ", waterMeters.size.toString())
+
                 listAdapter?.setData()
                 listAdapter?.notifyDataSetChanged()
-//                Log.d("wM before update size: ", waterMeters.size.toString())
-                UpdateAllAsyncTask(database, waterMeters).execute()
-//                Log.d("wM after update size: ", waterMeters.size.toString())
+                launch {
+                    updateAllItems(database, waterMeters)
+                }
             }
 
             override fun onCancelled(p0: DatabaseError) {}
         })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when {
-//            R.id.refresh_item == item.itemId -> {
-//                updateListView()
-//                selectedItemRegistryNumber = null
-//            }
-            R.id.exit_item == item.itemId -> {
-                val intent = Intent(this, AuthActivity::class.java)
-                intent.putExtra("actionExit", true)
-                startActivity(intent)
-            }
+    //FIXME Не работает Room, прологировать
+    private suspend fun retrieveItems(database: WaterMeterDatabase?) =
+        withContext(Dispatchers.IO) {
+            database?.dao()?.retrieveItemList()
         }
-        return super.onOptionsItemSelected(item)
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (data == null) return
-        val customerIsAdded: Boolean = data.getBooleanExtra("customerIsAdded", false)
-        if (customerIsAdded) {
-            Snackbar.make(root, "Клиент успешно добавлен", Snackbar.LENGTH_SHORT).show()
-        } else {
-            Snackbar.make(root, "Ошибка! Клиент не добавлен", Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-    private class RetrieveItemsAsyncTask(private val database: WaterMeterDatabase?) :
-        AsyncTask<Void, Void, List<WaterMeter>>() {
-        override fun doInBackground(vararg params: Void): List<WaterMeter>? {
-            return database?.dao()?.retrieveItemList()
-        }
-    }
-
-    class AddTaskAsyncTask(
-        private val database: WaterMeterDatabase?, private val newWaterMeter:
-        WaterMeter
-    ) : AsyncTask<Void, Void, Long>() {
-        override fun doInBackground(vararg params: Void): Long? {
-            return database?.dao()?.addItem(newWaterMeter)
-        }
-    }
-
-    class UpdateTaskAsyncTask(
-        private val database: WaterMeterDatabase?, private val
-        selected: WaterMeter
-    ) : AsyncTask<Void, Void, Unit>() {
-        override fun doInBackground(vararg params: Void): Unit? {
-            return database?.dao()?.updateItem(selected)
-        }
-    }
-
-    class UpdateAllAsyncTask(
-        private val database: WaterMeterDatabase?, private val
-        selected: ArrayList<WaterMeter>
-    ) : AsyncTask<Void, Void, Unit>() {
-        override fun doInBackground(vararg params: Void): Unit? {
-            return database?.dao()?.updateAll(selected)
-        }
-    }
-
-    private class DeleteTaskAsyncTask(
-        private val database: WaterMeterDatabase?, private val
-        selected: WaterMeter
-    ) : AsyncTask<Void, Void, Unit>() {
-        override fun doInBackground(vararg params: Void): Unit? {
-            return database?.dao()?.deleteItem(selected)
-        }
+    private suspend fun updateAllItems(
+        database: WaterMeterDatabase?,
+        selected: MutableCollection<WaterMeter>
+    ) = withContext(Dispatchers.IO) {
+        database?.dao()?.updateAll(selected)
     }
 }

@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">ГосВодоУчёт</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="app_name">ГорВодоУчёт</string>
     <string name="cancel">Отмена</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
@@ -28,6 +25,8 @@
     <string name="methodology">Методика</string>
     <string name="cold">Хол.</string>
     <string name="hot">Гор.</string>
+    <string name="coldWater">Холодная</string>
+    <string name="hotWater">Горячая</string>
     <string name="search">Поиск</string>
     <string name="label">label</string>
     <string name="new_client">Новый клиент</string>
@@ -39,4 +38,7 @@
     <string name="waterType">Вода</string>
     <string name="certificateNumber">Номер свидетельства о поверке</string>
     <string name="clear_selected_images">Очистить выбранные фото</string>
+    <string name="clientAdded">Клиент успешно добавлен</string>
+    <string name="clientNotAdded">Ошибка! Клиент не добавлен</string>
+    <string name="photoAdded">Добавлено %1$d фото</string>
 </resources>

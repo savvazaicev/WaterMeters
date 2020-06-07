@@ -6,13 +6,7 @@
         android:icon="@drawable/ic_search"
         android:title="@string/search"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always"/>
-<!--    <item-->
-<!--        android:id="@+id/refresh_item"-->
-<!--        android:icon="@drawable/ic_refresh"-->
-<!--        android:title="@string/refresh"-->
-<!--        android:visible="true"-->
-<!--        app:showAsAction="collapseActionView" />-->
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/exit_item"
         android:icon="@drawable/ic_exit"
