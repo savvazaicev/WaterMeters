@@ -5,10 +5,9 @@ class Client(
     var address: String?,
     var registryNumber: String?,
     var number: String?,
-//    var date: String?,
     var endDate: String?,
     var waterType: String?,
     var certificateNumber: String?,
-    var imagesURLs: MutableCollection<String>,
+    var imagesURLs: MutableList<String>,
     var email: String?
 )

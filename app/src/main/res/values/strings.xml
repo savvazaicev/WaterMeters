@@ -23,8 +23,8 @@
     <string name="type">Тип СИ</string>
     <string name="producer">Изготовитель</string>
     <string name="methodology">Методика</string>
-    <string name="cold">Хол.</string>
-    <string name="hot">Гор.</string>
+    <string name="cold">Хол. %1$s</string>
+    <string name="hot">Гор. %1$s</string>
     <string name="coldWater">Холодная</string>
     <string name="hotWater">Горячая</string>
     <string name="search">Поиск</string>

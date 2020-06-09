@@ -1,8 +1,8 @@
 package com.company.watermeters
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,28 +11,19 @@ import android.widget.Filterable
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.company.watermeters.MainActivity.Companion.waterMeters
 import com.company.watermeters.model.WaterMeter
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-//FIXME неправильная логика в адаптере, в конструктор не передаются данные
-class WaterMeterListAdapter(
-    waterMeterss: MutableCollection<WaterMeter>
-) : RecyclerView.Adapter<WaterMeterListAdapter.ViewHolder>(), Filterable {
+class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
+    RecyclerView.Adapter<WaterMeterListAdapter.ViewHolder>(), Filterable {
 
-    private var waterMeterList: MutableCollection<WaterMeter>
-
-    init {
-        waterMeterList = waterMeterss
-    }
-
-    private var resultList = ArrayList<WaterMeter>()
-    private var noFilterResults = true
+    private lateinit var context: Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
+        context = parent.context
+        val view = LayoutInflater.from(context)
             .inflate(R.layout.list_item, parent, false)
 
         val viewHolder = ViewHolder(view)
@@ -40,41 +31,38 @@ class WaterMeterListAdapter(
             val position = viewHolder.adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 MainActivity.selectedItemRegistryNumber =
-                    resultList[viewHolder.adapterPosition].registryNumber
-                (parent.context as Activity).startActivityForResult(
-                    Intent(parent.context as Activity,
-                        ClientFormActivity::class.java), 111)
+                    waterMeters[viewHolder.adapterPosition].registryNumber
+                (context as Activity).startActivityForResult(
+                    Intent(
+                        context as Activity,
+                        ClientFormActivity::class.java
+                    ), 111
+                )
             }
         }
         return viewHolder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val listItem = resultList[holder.adapterPosition]
+        val listItem = waterMeters[holder.adapterPosition]
         holder.registryNumberTextView?.text = listItem.registryNumber
         holder.nameTextView?.text = listItem.name
         holder.typeTextView?.text = listItem.type
         holder.producerTextView?.text = listItem.producer
-        holder.dateTextView?.text = formatDate(listItem)
+        holder.dateTextView?.text = formatDate(listItem.date)
         holder.methodologyTextView?.text = listItem.methodology
-        holder.coldTextView?.text = "Хол. " + listItem.coldWater
-        holder.hotTextView?.text = "Гор. " + listItem.hotWater
+        holder.coldTextView?.text = context.getString(R.string.cold, listItem.coldWater)
+        holder.hotTextView?.text = context.getString(R.string.hot, listItem.hotWater)
     }
 
-    fun setData() {
-        //FIXME Подумать над правильной логикой
-        if (noFilterResults) waterMeters.forEach { resultList.add(it.clone() as WaterMeter) }
-        Log.d("wMList size", waterMeterList.size.toString())
-    }
-
-    fun updateList(newList: ArrayList<WaterMeter>) {
-        val diffResult = DiffUtil.calculateDiff(DiffUtilsCallback(resultList, newList))
+    fun updateData(newList: MutableList<WaterMeter>) {
+        val diffResult = DiffUtil.calculateDiff(DiffUtilsCallback(waterMeters, newList))
+        waterMeters = newList
         diffResult.dispatchUpdatesTo(this)
+        notifyDataSetChanged()
     }
 
-    fun getList() = resultList
-
-    override fun getItemCount() = resultList.size
+    override fun getItemCount() = waterMeters.size
 
     override fun getFilter() = filter
 
@@ -90,15 +78,18 @@ class WaterMeterListAdapter(
     }
 
     private val filter = object : Filter() {
+        val originalList = ArrayList<WaterMeter>()
+
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
+            waterMeters.forEach { originalList.add(it.copy()) }
             val filteredList: MutableList<WaterMeter> = ArrayList()
+
             if (constraint == null || constraint.isEmpty()) {
-                waterMeters.forEach { filteredList.add(it.clone() as WaterMeter) }
-                Log.d("con null, em, wM size: ", waterMeters.size.toString())
+                originalList.forEach { filteredList.add(it.copy()) }
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase().trim()
-                for (item in waterMeters) {
+                for (item in originalList) {
                     if (item.registryNumber?.toLowerCase()?.contains(filterPattern) == true ||
                         item.name?.toLowerCase()?.contains(filterPattern) == true ||
                         item.producer?.toLowerCase()?.contains(filterPattern) == true ||
@@ -106,13 +97,10 @@ class WaterMeterListAdapter(
                         item.methodology?.toLowerCase()?.contains(filterPattern) == true ||
                         item.type?.toLowerCase()?.contains(filterPattern) == true
                     ) {
-                        filteredList.add(item.clone() as WaterMeter)
+                        filteredList.add(item.copy())
                     }
                 }
-                Log.d("con not empt, fL size: ", filteredList.size.toString())
             }
-            noFilterResults = filteredList.isEmpty()
-            Log.d("wM noResults: ", noFilterResults.toString())
             val results = FilterResults()
             results.values = filteredList
             return results
@@ -122,17 +110,15 @@ class WaterMeterListAdapter(
             constraint: CharSequence?,
             results: FilterResults
         ) {
-            resultList.clear()
-            resultList.addAll(results.values as ArrayList<WaterMeter>)
-            Log.d("con not empt, rL size: ", resultList.size.toString())
-            setData()
+            waterMeters.clear()
+            waterMeters.addAll(results.values as ArrayList<WaterMeter>)
             notifyDataSetChanged()
         }
     }
 
-    //FIXME Перенести метод к запросу к бд
-    private fun formatDate(waterMeter: WaterMeter): String? {
-        var formattedDate: String? = waterMeter.date
+    //OPTIMIZE Перенести метод в класс DateConverter
+    private fun formatDate(date: String?): String? {
+        var formattedDate: String? = date
         if (formattedDate != null) {
             try {
                 val formattedString = SimpleDateFormat("d/M/yy", Locale("ru")).parse(formattedDate)

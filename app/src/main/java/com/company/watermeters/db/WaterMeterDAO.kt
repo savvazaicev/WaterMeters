@@ -5,14 +5,18 @@ import com.company.watermeters.model.WaterMeter
 
 @Dao
 interface WaterMeterDAO {
-    @Query("SELECT * FROM " + DBContract.WaterMeterItem.TABLE_NAME)
-    fun retrieveItemList(): List<WaterMeter>
-    @Insert
-    fun addItem(item: WaterMeter): Long
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateAll(items: MutableCollection<WaterMeter>)
-    @Update
-    fun updateItem(item: WaterMeter)
-    @Delete
-    fun deleteItem(item: WaterMeter)
+    @Query("SELECT * from " + "waterMeters")
+    suspend fun getAll(): List<WaterMeter>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addAll(items: MutableList<WaterMeter>): List<Long>
+
+    @Query("DELETE from waterMeters WHERE id NOT IN (:itemsId)")
+    suspend fun deleteAll(itemsId: List<Int?>)
+
+    @Transaction
+    suspend fun updateAll(items: MutableList<WaterMeter>) {
+        addAll(items)
+        deleteAll(items.map { it.id })
+    }
 }

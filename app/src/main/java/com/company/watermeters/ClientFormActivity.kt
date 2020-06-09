@@ -30,7 +30,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-
 class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, CoroutineScope {
 
     companion object {
@@ -39,8 +38,8 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
 
     private lateinit var textView: TextView
 
-    private var allPath: MutableCollection<Uri> = ArrayList()
-    private var imageURLs: MutableCollection<String> =
+    private var allPath: MutableList<Uri> = ArrayList()
+    private var imageURLs: MutableList<String> =
         Collections.synchronizedList(ArrayList<String>())
     private lateinit var imageUri: Uri
     private lateinit var photo: File
@@ -152,14 +151,12 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
         val listCam: List<ResolveInfo> = packageManager.queryIntentActivities(captureIntent, 0)
         for (res in listCam) {
             val packageName: String = res.activityInfo.packageName
-            val intent = Intent(captureIntent)
-            intent.component = ComponentName(
-                res.activityInfo.packageName,
-                res.activityInfo.name
-            )
-            intent.setPackage(packageName)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-            intent.putExtra("isCamera", true)
+            val intent = Intent(captureIntent).apply {
+                component = ComponentName(res.activityInfo.packageName, res.activityInfo.name)
+                setPackage(packageName)
+                putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+                putExtra("isCamera", true)
+            }
             cameraIntents.add(intent)
         }
 
@@ -202,6 +199,10 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
         if (fullName == "" || address == "" || registryNumber == "" ||
             number == "" || date == "" || endDate == "" || waterType == "" || certificateNumber == ""
         ) return
+
+        //use for tests
+//        dateLayout.error = if (date == "") getString(R.string.requiredField) else null
+//        if (date == "") return
 
         save_button.isEnabled = false
         launch {
@@ -256,7 +257,6 @@ class ClientFormActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListen
                         val currentPartCoefficient = 100.0 * 1 / allPath.size
                         val progress =
                             (alreadyDownloadedPart + currentPartCoefficient * it.bytesTransferred / it.totalByteCount)
-//                        ObjectAnimator.ofInt(progressBar, "progress", 50, progress.toInt()).start()
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             progressBar.setProgress(progress.toInt(), true)
                         } else {

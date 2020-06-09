@@ -1,9 +1,6 @@
 package com.company.watermeters
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -12,12 +9,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
-import com.company.watermeters.db.DBContract.DATABASE_NAME
 import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.WaterMeter
 import com.google.android.material.snackbar.Snackbar
@@ -32,14 +27,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     companion object {
         //OPTIMIZE Передать в интенте в bundle (размер bundle ограничен)
         var selectedItemRegistryNumber: String? = null
-        var waterMeters: MutableCollection<WaterMeter> = ArrayList()
         private const val ADD_CLIENT_REQUEST = 111
-        private const val STORAGE_PERMISSION_REQUEST = 211
     }
 
+    private var waterMeters: MutableList<WaterMeter> = ArrayList()
     private var database: WaterMeterDatabase? = null
-    private var db: FirebaseDatabase? = null
-    private var ref: DatabaseReference? = null
     private var listAdapter: WaterMeterListAdapter? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
@@ -50,7 +42,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        setFirebaseDatabase()
+        setRoomDatabase()
         setRecyclerView()
 
         button_first.setOnClickListener {
@@ -81,7 +73,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             }
         })
         searchView.setOnCloseListener {
-            listAdapter?.setData()
             listAdapter?.notifyDataSetChanged()
             selectedItemRegistryNumber = null
             exitItem.isVisible = true
@@ -98,7 +89,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             if (customerIsAdded) {
                 Snackbar.make(root, getString(R.string.clientAdded), Snackbar.LENGTH_SHORT).show()
             } else {
-                Snackbar.make(root, getString(R.string.clientNotAdded), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(root, getString(R.string.clientNotAdded), Snackbar.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -112,91 +104,64 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == STORAGE_PERMISSION_REQUEST && grantResults.isNotEmpty()){
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("permissionGranted", "true")
-                //TODO: onRequestPermissionsResult
-            }
-        } else {
-            Log.d("permissionGranted", "false")
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         coroutineContext.cancelChildren()
     }
 
-    private fun setFirebaseDatabase() {
+    private fun setRoomDatabase() {
         database = Room.databaseBuilder(
             applicationContext, WaterMeterDatabase::class.java,
-            DATABASE_NAME
+            "waterMeters"
         ).build()
-        db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
-        ref = db?.getReference("WaterMeters")
     }
 
     private fun setRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.list)
-
-        recyclerView.setHasFixedSize(true)
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         listAdapter = WaterMeterListAdapter(waterMeters)
         recyclerView.adapter = listAdapter
+        recyclerView.setHasFixedSize(true)
         val dividerItemDecoration =
             DividerItemDecoration(recyclerView.context, layoutManager.orientation)
         recyclerView.addItemDecoration(dividerItemDecoration)
-
-        Log.d("wM before retriv size: ", waterMeters.size.toString())
         launch {
-            waterMeters = retrieveItems(database) as ArrayList<WaterMeter>
+            waterMeters = retrieveItems() as ArrayList<WaterMeter>
+            Log.d("wM after retriv size", waterMeters.size.toString())
+            listAdapter?.updateData(waterMeters)
+            updateWaterMeterList()
         }
-        Log.d("wM after retriv size: ", waterMeters.size.toString())
-        listAdapter?.setData()
-        listAdapter?.notifyDataSetChanged()
-        if (waterMeters.isEmpty()) updateListView()
     }
 
-    private fun updateListView() {
-        ref?.addValueEventListener(object : ValueEventListener {
+    private fun updateWaterMeterList() {
+        val db = FirebaseDatabase.getInstance("https://watermeters.firebaseio.com/")
+        val ref = db.getReference("WaterMeters")
+        ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                updateWaterMetersData(dataSnapshot)
+                launch { updateDatabaseData() }
+            }
+
+            private fun updateWaterMetersData(dataSnapshot: DataSnapshot) {
                 waterMeters.clear()
-                Log.d("wM after clear size: ", waterMeters.size.toString())
-
                 val t = object : GenericTypeIndicator<WaterMeter>() {}
-                dataSnapshot.children.forEach {
-                    it.getValue(t)?.let { it1 -> waterMeters.add(it1) }
+                dataSnapshot.children.forEachIndexed { index, child ->
+                    child.getValue(t)?.let { it ->
+                        waterMeters.add(it.apply {
+                            id = index
+                        })
+                    }
                 }
-                Log.d("wM after upd size: ", waterMeters.size.toString())
-
-                listAdapter?.setData()
-                listAdapter?.notifyDataSetChanged()
-                launch {
-                    updateAllItems(database, waterMeters)
-                }
+                Log.d("wM after firebase size", waterMeters.size.toString())
+                listAdapter?.updateData(waterMeters)
             }
 
             override fun onCancelled(p0: DatabaseError) {}
         })
     }
 
-    //FIXME Не работает Room, прологировать
-    private suspend fun retrieveItems(database: WaterMeterDatabase?) =
-        withContext(Dispatchers.IO) {
-            database?.dao()?.retrieveItemList()
-        }
+    private suspend fun retrieveItems() = database?.dao()?.getAll()
 
-    private suspend fun updateAllItems(
-        database: WaterMeterDatabase?,
-        selected: MutableCollection<WaterMeter>
-    ) = withContext(Dispatchers.IO) {
-        database?.dao()?.updateAll(selected)
-    }
+    private suspend fun updateDatabaseData() = database?.dao()?.updateAll(waterMeters)
 }
