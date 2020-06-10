@@ -4,8 +4,8 @@ import androidx.recyclerview.widget.DiffUtil
 import com.company.watermeters.model.WaterMeter
 
 class DiffUtilsCallback(
-    var oldList: MutableList<WaterMeter>,
-    var newList: MutableList<WaterMeter>
+    private var oldList: MutableList<WaterMeter>,
+    private var newList: MutableList<WaterMeter>
 ) :
     DiffUtil.Callback() {
 

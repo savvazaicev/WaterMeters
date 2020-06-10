@@ -12,7 +12,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.company.watermeters.model.WaterMeter
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -30,13 +29,13 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
         viewHolder.itemView.setOnClickListener {
             val position = viewHolder.adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                MainActivity.selectedItemRegistryNumber =
-                    waterMeters[viewHolder.adapterPosition].registryNumber
+                val intent = Intent(context as Activity, ClientFormActivity::class.java)
+                    .putExtra(
+                        "registryNumber",
+                        waterMeters[viewHolder.adapterPosition].registryNumber
+                    )
                 (context as Activity).startActivityForResult(
-                    Intent(
-                        context as Activity,
-                        ClientFormActivity::class.java
-                    ), 111
+                    intent, 111
                 )
             }
         }
@@ -49,7 +48,7 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
         holder.nameTextView?.text = listItem.name
         holder.typeTextView?.text = listItem.type
         holder.producerTextView?.text = listItem.producer
-        holder.dateTextView?.text = formatDate(listItem.date)
+        holder.dateTextView?.text = listItem.date
         holder.methodologyTextView?.text = listItem.methodology
         holder.coldTextView?.text = context.getString(R.string.cold, listItem.coldWater)
         holder.hotTextView?.text = context.getString(R.string.hot, listItem.hotWater)
@@ -88,14 +87,14 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
                 originalList.forEach { filteredList.add(it.copy()) }
             } else {
                 val filterPattern =
-                    constraint.toString().toLowerCase().trim()
+                    constraint.toString().toLowerCase(Locale.ROOT).trim()
                 for (item in originalList) {
-                    if (item.registryNumber?.toLowerCase()?.contains(filterPattern) == true ||
-                        item.name?.toLowerCase()?.contains(filterPattern) == true ||
-                        item.producer?.toLowerCase()?.contains(filterPattern) == true ||
-                        item.date?.toLowerCase()?.contains(filterPattern) == true ||
-                        item.methodology?.toLowerCase()?.contains(filterPattern) == true ||
-                        item.type?.toLowerCase()?.contains(filterPattern) == true
+                    if (item.registryNumber?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                        item.name?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                        item.producer?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                        item.date?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                        item.methodology?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                        item.type?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true
                     ) {
                         filteredList.add(item.copy())
                     }
@@ -111,25 +110,9 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
             results: FilterResults
         ) {
             waterMeters.clear()
+            @Suppress("UNCHECKED_CAST")
             waterMeters.addAll(results.values as ArrayList<WaterMeter>)
             notifyDataSetChanged()
         }
-    }
-
-    //OPTIMIZE Перенести метод в класс DateConverter
-    private fun formatDate(date: String?): String? {
-        var formattedDate: String? = date
-        if (formattedDate != null) {
-            try {
-                val formattedString = SimpleDateFormat("d/M/yy", Locale("ru")).parse(formattedDate)
-                if (formattedString != null) {
-                    formattedDate =
-                        SimpleDateFormat("dd.MM.yyyy", Locale("ru")).format(formattedString)
-                }
-            } finally {
-                return formattedDate
-            }
-        }
-        return formattedDate
     }
 }

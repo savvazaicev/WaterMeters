@@ -1,6 +1,6 @@
 package com.company.watermeters.model
 
-class Client(
+data class Client(
     var fullName: String?,
     var address: String?,
     var registryNumber: String?,

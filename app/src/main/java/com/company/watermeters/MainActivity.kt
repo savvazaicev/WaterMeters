@@ -1,54 +1,58 @@
 package com.company.watermeters
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.company.watermeters.databinding.ActivityMainBinding
 import com.company.watermeters.db.WaterMeterDatabase
 import com.company.watermeters.model.WaterMeter
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
-        //OPTIMIZE Передать в интенте в bundle (размер bundle ограничен)
-        var selectedItemRegistryNumber: String? = null
         private const val ADD_CLIENT_REQUEST = 111
     }
 
     private var waterMeters: MutableList<WaterMeter> = ArrayList()
     private var database: WaterMeterDatabase? = null
     private var listAdapter: WaterMeterListAdapter? = null
+    private lateinit var binding: ActivityMainBinding
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         setSupportActionBar(toolbar)
         setRoomDatabase()
         setRecyclerView()
-
         button_first.setOnClickListener {
             val intent = Intent(this, ClientFormActivity::class.java)
             startActivityForResult(intent, ADD_CLIENT_REQUEST)
         }
+        launch { authWithSavedData() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -74,7 +78,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         })
         searchView.setOnCloseListener {
             listAdapter?.notifyDataSetChanged()
-            selectedItemRegistryNumber = null
             exitItem.isVisible = true
             false
         }
@@ -84,13 +87,19 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ADD_CLIENT_REQUEST && resultCode == RESULT_OK && data != null) {
-            val root = findViewById<CoordinatorLayout>(R.id.root_element)
             val customerIsAdded: Boolean = data.getBooleanExtra("customerIsAdded", false)
             if (customerIsAdded) {
-                Snackbar.make(root, getString(R.string.clientAdded), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.clientAdded),
+                    Snackbar.LENGTH_SHORT
+                ).show()
             } else {
-                Snackbar.make(root, getString(R.string.clientNotAdded), Snackbar.LENGTH_SHORT)
-                    .show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.clientNotAdded),
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -117,7 +126,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun setRecyclerView() {
-        val recyclerView = findViewById<RecyclerView>(R.id.list)
+        val recyclerView = binding.contentMain.list
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         listAdapter = WaterMeterListAdapter(waterMeters)
@@ -128,7 +137,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         recyclerView.addItemDecoration(dividerItemDecoration)
         launch {
             waterMeters = retrieveItems() as ArrayList<WaterMeter>
-            Log.d("wM after retriv size", waterMeters.size.toString())
             listAdapter?.updateData(waterMeters)
             updateWaterMeterList()
         }
@@ -150,15 +158,53 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                     child.getValue(t)?.let { it ->
                         waterMeters.add(it.apply {
                             id = index
+                            date = formatDate(it.date)
                         })
                     }
                 }
-                Log.d("wM after firebase size", waterMeters.size.toString())
                 listAdapter?.updateData(waterMeters)
             }
 
             override fun onCancelled(p0: DatabaseError) {}
         })
+    }
+
+    private fun formatDate(date: String?): String? {
+        var formattedDate: String? = date
+        if (formattedDate != null) {
+            try {
+                val formattedString = SimpleDateFormat("d/M/yy", Locale("ru")).parse(formattedDate)
+                if (formattedString != null) {
+                    formattedDate =
+                        SimpleDateFormat("dd.MM.yyyy", Locale("ru")).format(formattedString)
+                }
+            } finally {
+                return formattedDate
+            }
+        }
+        return formattedDate
+    }
+
+    private suspend fun authWithSavedData() {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        val sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
+        val email = sharedPref?.getString(AuthActivity.EMAIL, null)
+        val password = sharedPref?.getString(AuthActivity.PASSWORD, null)
+        if (email != null && password != null) {
+            try {
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnFailureListener {
+                        startActivity(Intent(this, AuthActivity::class.java))
+                        finish()
+                    }
+                    .await()
+            } catch (e: Exception) {
+                throw e
+            }
+        } else {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+        }
     }
 
     private suspend fun retrieveItems() = database?.dao()?.getAll()

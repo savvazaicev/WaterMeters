@@ -3,8 +3,6 @@ package com.company.watermeters.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.company.watermeters.db.DateConverter
 
 @Entity(tableName = "waterMeters")
 data class WaterMeter(
@@ -24,9 +22,8 @@ data class WaterMeter(
     @ColumnInfo(name = "producer")
     val producer: String?,
 
-    @TypeConverters(DateConverter::class)
     @ColumnInfo(name = "date")
-    val date: String?,
+    var date: String?,
 
     @ColumnInfo(name = "methodology")
     val methodology: String?,

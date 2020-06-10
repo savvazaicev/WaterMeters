@@ -5,29 +5,19 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
-import android.widget.Button
-import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.company.watermeters.databinding.ActivityAuthBinding
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.rengwuxian.materialedittext.MaterialEditText
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.CoroutineContext
 
-class AuthActivity : AppCompatActivity() {
-    private lateinit var btnSignIn: Button
-    private var firebaseAuth: FirebaseAuth? = null
-    private var db: FirebaseDatabase? = null
-    private var users: DatabaseReference? = null
-    private var gso: GoogleSignInOptions? = null
-    private var googleSignInClient: GoogleSignInClient? = null
-    private var sharedPref: SharedPreferences? = null
-    private lateinit var root: RelativeLayout
+class AuthActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
         const val USER_ID = "userId"
@@ -35,97 +25,109 @@ class AuthActivity : AppCompatActivity() {
         const val PASSWORD = "password"
     }
 
+    private lateinit var firebaseAuth: FirebaseAuth
+    private var sharedPref: SharedPreferences? = null
+    private lateinit var binding: ActivityAuthBinding
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_auth)
-        root = findViewById(R.id.root_element)
+        binding = ActivityAuthBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
         sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
-        val idToken = sharedPref?.getString(USER_ID, null)
+        reAuth()
+        binding.btnSignIn.setOnClickListener {
+            launch { signIn() }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancelChildren()
+    }
+
+    private fun reAuth() {
         signOut()
         if (intent.getBooleanExtra("actionExit", false)) {
-            saveAuthData(null, null,null)
+            saveAuthData(null, null, null)
         } else {
-            authWithSavedData()
-        }
-        val user = firebaseAuth?.currentUser
-        if (user?.uid == null || idToken != user.uid) {
-            db = FirebaseDatabase.getInstance()
-            users = db!!.getReference("Users")
-
-            btnSignIn = findViewById(R.id.btnSignIn)
-            btnSignIn.setOnClickListener {
-                showSignInWindow()
-            }
+            launch { authWithSavedData() }
         }
     }
 
-    private fun showSignInWindow() {
-        val email = findViewById<TextInputEditText>(R.id.emailField)
-        val password = findViewById<TextInputEditText>(R.id.passField)
-        when {
-            TextUtils.isEmpty(email.text.toString()) -> {
-                Snackbar.make(root, "Введите вашу почту", Snackbar.LENGTH_SHORT).show()
-            }
-            password.text.toString().length < 5 -> {
-                Snackbar.make(
-                    root,
-                    "Введите пароль, содержащий более 5 символов",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
-
-            //Вход пользователя
-            else -> {
-                firebaseAuth?.signInWithEmailAndPassword(
-                    email.text.toString(),
-                    password.text.toString()
-                )
-                    ?.addOnSuccessListener {
-                        saveAuthData(
-                            firebaseAuth?.currentUser?.uid,
-                            email.text.toString(),
-                            password.text.toString()
-                        )
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
-                    ?.addOnFailureListener {
-                        Snackbar.make(root, "Ошибка авторизации", Snackbar.LENGTH_SHORT).show()
-                    }
-            }
-        }
-    }
-
-    private fun saveAuthData(uid: String?, email: String?, password: String?) {
-        val sharedPref = getSharedPreferences("SaveData", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        editor.putString(USER_ID, uid)
-        editor.putString(EMAIL, email)
-        editor.putString(PASSWORD, password)
-        editor.apply()
-    }
-
-    private fun authWithSavedData() {
-        val email = sharedPref?.getString(EMAIL, null)
-        val password = sharedPref?.getString(PASSWORD, null)
-        if (email != null && password != null) {
-            firebaseAuth?.signInWithEmailAndPassword(email, password)
-                ?.addOnSuccessListener {
+    private suspend fun signIn() {
+        val email = binding.emailField
+        val password = binding.passField
+        if (validateFields(email, password)) {
+            firebaseAuth.signInWithEmailAndPassword(
+                email.text.toString(),
+                password.text.toString()
+            )
+                .addOnSuccessListener {
+                    saveAuthData(
+                        firebaseAuth.currentUser?.uid,
+                        email.text.toString(),
+                        password.text.toString()
+                    )
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
-                ?.addOnFailureListener {
-                    Snackbar.make(root, "Ошибка авторизации", Snackbar.LENGTH_SHORT).show()
+                .addOnFailureListener {
+                    snackBar(getString(R.string.authError))
                 }
+                .await()
+        }
+    }
+
+    private suspend fun authWithSavedData() {
+        val email = sharedPref?.getString(EMAIL, null)
+        val password = sharedPref?.getString(PASSWORD, null)
+        if (email != null && password != null) {
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
+                .addOnFailureListener {
+                    snackBar(getString(R.string.authError))
+                }
+                .await()
         }
     }
 
     private fun signOut() {
-        gso = GoogleSignInOptions.DEFAULT_SIGN_IN
-        googleSignInClient = gso?.let { GoogleSignIn.getClient(this, it) }
+        val gso = GoogleSignInOptions.DEFAULT_SIGN_IN
+        val googleSignInClient = gso?.let { GoogleSignIn.getClient(this, it) }
         FirebaseAuth.getInstance().signOut()
         Auth.GoogleSignInApi.signOut(googleSignInClient?.asGoogleApiClient())
     }
+
+    private fun validateFields(email: TextInputEditText, password: TextInputEditText): Boolean =
+        when {
+            TextUtils.isEmpty(email.text.toString()) -> {
+                snackBar(getString(R.string.enterYourMail))
+                false
+            }
+            password.text.toString().length < 5 -> {
+                snackBar(getString(R.string.needMoreThanFiveCharacters))
+                false
+            }
+            else -> true
+        }
+
+    private fun saveAuthData(uid: String?, email: String?, password: String?) {
+        sharedPref?.edit()?.apply {
+            putString(USER_ID, uid)
+            putString(EMAIL, email)
+            putString(PASSWORD, password)
+            apply()
+        }
+    }
+
+    private fun snackBar(str: String) =
+        Snackbar.make(binding.root, str, Snackbar.LENGTH_SHORT).show()
 }
