@@ -111,7 +111,9 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
         ) {
             waterMeters.clear()
             @Suppress("UNCHECKED_CAST")
-            waterMeters.addAll(results.values as ArrayList<WaterMeter>)
+            if (results.values != null) {
+                waterMeters.addAll(results.values as ArrayList<WaterMeter>)
+            }
             notifyDataSetChanged()
         }
     }
