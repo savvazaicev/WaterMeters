@@ -3,6 +3,7 @@ package com.company.watermeters
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,8 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
     RecyclerView.Adapter<WaterMeterListAdapter.ViewHolder>(), Filterable {
 
     private lateinit var context: Context
+    //    private var isFiltering = false
+    val originalList: MutableList<WaterMeter> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
@@ -56,9 +59,14 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
 
     fun updateData(newList: MutableList<WaterMeter>) {
         val diffResult = DiffUtil.calculateDiff(DiffUtilsCallback(waterMeters, newList))
+        Log.d("mytag", "updateData waterMeters size: ${waterMeters.size}")
+        Log.d("mytag", "updateData newList size: ${newList.size}")
         waterMeters = newList
+        waterMeters.forEach { originalList.add(it.copy()) }
         diffResult.dispatchUpdatesTo(this)
         notifyDataSetChanged()
+        Log.d("mytag", "notifyDataSetChanged waterMeters size: ${waterMeters.size}")
+        Log.d("mytag", "notifyDataSetChanged newList size: ${newList.size}")
     }
 
     override fun getItemCount() = waterMeters.size
@@ -77,28 +85,41 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
     }
 
     private val filter = object : Filter() {
-        val originalList = ArrayList<WaterMeter>()
+//        val originalList: MutableList<WaterMeter> = ArrayList()
+//            .also {
+//            waterMeters.forEach { it1 -> it.add(it1.copy()) }
+//        }
 
         override fun performFiltering(constraint: CharSequence?): FilterResults? {
-            waterMeters.forEach { originalList.add(it.copy()) }
+//            if (!isFiltering) {
+//            waterMeters.forEach { originalList.add(it.copy()) }
+//                isFiltering = true
+//            }
+            Log.d("mytag", "filter originalList size: ${originalList.size}")
+            Log.d("mytag", "filter waterMeters size: ${waterMeters.size}")
             val filteredList: MutableList<WaterMeter> = ArrayList()
 
             if (constraint == null || constraint.isEmpty()) {
                 originalList.forEach { filteredList.add(it.copy()) }
+                Log.d("mytag", "filter if filteredList size: ${filteredList.size}")
+//                isFiltering = false
             } else {
                 val filterPattern =
                     constraint.toString().toLowerCase(Locale.ROOT).trim()
                 for (item in originalList) {
-                    if (item.registryNumber?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                    if (item.registryNumber?.toLowerCase(Locale.ROOT)
+                            ?.contains(filterPattern) == true ||
                         item.name?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
                         item.producer?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
                         item.date?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
-                        item.methodology?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true ||
+                        item.methodology?.toLowerCase(Locale.ROOT)
+                            ?.contains(filterPattern) == true ||
                         item.type?.toLowerCase(Locale.ROOT)?.contains(filterPattern) == true
                     ) {
                         filteredList.add(item.copy())
                     }
                 }
+                Log.d("mytag", "filter else filteredList size: ${filteredList.size}")
             }
             val results = FilterResults()
             results.values = filteredList
@@ -113,6 +134,7 @@ class WaterMeterListAdapter(private var waterMeters: MutableList<WaterMeter>) :
             @Suppress("UNCHECKED_CAST")
             if (results.values != null) {
                 waterMeters.addAll(results.values as ArrayList<WaterMeter>)
+                Log.d("mytag", "results waterMeters size: ${waterMeters.size}")
             }
             notifyDataSetChanged()
         }

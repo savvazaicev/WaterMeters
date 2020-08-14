@@ -105,12 +105,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (R.id.exit_item == item.itemId) {
+        return if (R.id.exit_item == item.itemId) {
             val intent = Intent(this, AuthActivity::class.java)
             intent.putExtra("actionExit", true)
             startActivity(intent)
-        }
-        return super.onOptionsItemSelected(item)
+            true
+        } else super.onOptionsItemSelected(item)
     }
 
     override fun onDestroy() {
